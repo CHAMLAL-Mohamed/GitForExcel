@@ -3,12 +3,53 @@
  */
 package com.twiza;
 
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class App {
-    public String getGreeting() {
-        return "Hello world.";
+    static int[] indexes = new int[]{0};
+    static EBuilder builder;
+    static final String PATH1 = "C:\\data\\TestFiles\\GitForExcelTest1.xlsx";
+    static final String PATH2 = "C:\\data\\TestFiles\\GitForExcelTest2.xlsx";
+    static final int INDEX = 0;
+
+
+    public static void main(String[] args) throws IOException {
+        builder = ExcelBuilder.getInstance();
+        Workbook workbook1 = builder.buildWorkbook(PATH1);
+        Workbook workbook2 = builder.buildWorkbook(PATH2);
+        ExcelFile newFile = new ExcelFile();
+        ExcelFile oldFile = new ExcelFile();
+
+        for (int index : indexes) {
+            newFile.AddSheet(builder.buildESheet(workbook1, index));
+            oldFile.AddSheet(builder.buildESheet(workbook2, index));
+        }
+        ExcelFile.getFilesDiff(newFile, oldFile);
+
+
+        try {
+            Map<String, List<String>> map = newFile.getESheet(workbook1.getSheetName(indexes[0])).getData();
+            printMap(map);
+        } catch (NullPointerException e) {
+            System.out.println(" the ExcelFile doesn't contain this sheet");
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.out.println("No sheet at that Index");
+            e.printStackTrace();
+        }
+
     }
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+    private static void printMap(Map<String, List<String>> map) {
+        map.keySet().forEach(key -> {
+            System.out.print(key + " :");
+            map.get(key).forEach(var -> System.out.print(var + "-"));
+            System.out.println();
+        });
     }
 }
