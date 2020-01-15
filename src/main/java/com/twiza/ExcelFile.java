@@ -33,8 +33,7 @@ public class ExcelFile {
     //add this comments to a new Sheet
     static ExcelFile getFilesDiff(ExcelFile newFile, ExcelFile oldFile) {
         ExcelFile diffFile = new ExcelFile();
-        diffFile.addAll(newFile.getData(), "/+");
-        diffFile.addAll(oldFile.getData(), "/-");
+
 
 
 
