@@ -17,9 +17,6 @@ public class Main {
     static final String PATH = "C:\\Users\\mohamed.chamlal\\Desktop\\YPPFMCG.xlsx";
     static final int INDEX = 0;
 
-    public Main() {
-    }
-
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
         Workbook workbook = builder.buildWorkbook("C:\\Users\\mohamed.chamlal\\Desktop\\YPPFMCG.xlsx");
@@ -42,7 +39,7 @@ public class Main {
 
     }
 
-    private static void printMap(Map<String, List<String>> map) {
+    private static void printMap(Map<String, ERow> map) {
         Iterator var1 = map.keySet().iterator();
 
         while(var1.hasNext()) {

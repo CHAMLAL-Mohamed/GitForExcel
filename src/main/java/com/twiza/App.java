@@ -3,12 +3,64 @@
  */
 package com.twiza;
 
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class App {
-    public String getGreeting() {
-        return "Hello world.";
+
+    static int[] indexes = new int[]{0,1,2};
+    static EBuilder builder;
+    static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests";
+    static final int INDEX = 0;
+
+
+    public static void main(String[] args) throws IOException {
+        builder = ExcelBuilder.getInstance();
+        Workbook workbook1 = builder.buildWorkbook(PATH+"\\test1.xlsx");
+        Workbook workbook2 = builder.buildWorkbook(PATH+"\\test2.xlsx");
+        ExcelFile excelFile1 = new ExcelFile();
+        ExcelFile excelFile2 = new ExcelFile();
+
+        for(int i = 0; i < indexes.length; ++i) {
+            excelFile1.AddSheet(builder.buildESheet(workbook1, indexes[i]));
+        }
+        for(int i = 0; i < indexes.length; ++i) {
+            excelFile2.AddSheet(builder.buildESheet(workbook2, indexes[i]));
+        }
+        excelFile2.compare(excelFile1);
+
+//        Map map = null;
+//
+//        try {
+//            map = excelFile1.getSheetData(workbook1.getSheetName(indexes[1]));
+//            printMap(map);
+//        } catch (NullPointerException var5) {
+//            System.out.println(" the ExcelFile doesn't contain this sheet");
+//        } catch (IllegalArgumentException var6) {
+//            System.out.println("No sheet at that Index");
+//        }
+
     }
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+    private static void printMap(Map<String, List<String>> map) {
+        Iterator var1 = map.keySet().iterator();
+
+        while(var1.hasNext()) {
+            String key = (String)var1.next();
+            System.out.print(key + " :");
+            Iterator var3 = ((List)map.get(key)).iterator();
+
+            while(var3.hasNext()) {
+                String value = (String)var3.next();
+                System.out.print(value + "-");
+            }
+
+            System.out.println();
+        }
+
     }
 }
