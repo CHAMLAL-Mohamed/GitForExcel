@@ -11,15 +11,23 @@ import java.util.List;
 import java.util.Map;
 
 public class App {
+<<<<<<< HEAD
 
     static int[] indexes = new int[]{0,1,2};
     static EBuilder builder;
     static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests";
+=======
+    static int[] indexes = new int[]{0};
+    static EBuilder builder;
+    static final String PATH1 = "C:\\data\\TestFiles\\GitForExcelTest1.xlsx";
+    static final String PATH2 = "C:\\data\\TestFiles\\GitForExcelTest2.xlsx";
+>>>>>>> 94f4d4c12cdef1da5b39aa379153aa7d2a95cdf1
     static final int INDEX = 0;
 
 
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
+<<<<<<< HEAD
         Workbook workbook1 = builder.buildWorkbook(PATH+"\\test1.xlsx");
         Workbook workbook2 = builder.buildWorkbook(PATH+"\\test2.xlsx");
         ExcelFile excelFile1 = new ExcelFile();
@@ -43,10 +51,35 @@ public class App {
 //        } catch (IllegalArgumentException var6) {
 //            System.out.println("No sheet at that Index");
 //        }
+=======
+        Workbook workbook1 = builder.buildWorkbook(PATH1);
+        Workbook workbook2 = builder.buildWorkbook(PATH2);
+        ExcelFile newFile = new ExcelFile();
+        ExcelFile oldFile = new ExcelFile();
+
+        for (int index : indexes) {
+            newFile.AddSheet(builder.buildESheet(workbook1, index));
+            oldFile.AddSheet(builder.buildESheet(workbook2, index));
+        }
+        ExcelFile.getFilesDiff(newFile, oldFile);
+
+
+        try {
+            Map<String, List<String>> map = newFile.getESheet(workbook1.getSheetName(indexes[0])).getData();
+            printMap(map);
+        } catch (NullPointerException e) {
+            System.out.println(" the ExcelFile doesn't contain this sheet");
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.out.println("No sheet at that Index");
+            e.printStackTrace();
+        }
+>>>>>>> 94f4d4c12cdef1da5b39aa379153aa7d2a95cdf1
 
     }
 
     private static void printMap(Map<String, List<String>> map) {
+<<<<<<< HEAD
         Iterator var1 = map.keySet().iterator();
 
         while(var1.hasNext()) {
@@ -62,5 +95,12 @@ public class App {
             System.out.println();
         }
 
+=======
+        map.keySet().forEach(key -> {
+            System.out.print(key + " :");
+            map.get(key).forEach(var -> System.out.print(var + "-"));
+            System.out.println();
+        });
+>>>>>>> 94f4d4c12cdef1da5b39aa379153aa7d2a95cdf1
     }
 }
