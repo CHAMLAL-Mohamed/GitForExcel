@@ -14,12 +14,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 public class Main {
     static int[] indexes = new int[]{0};
     static EBuilder builder;
-    static final String PATH = "C:\\Users\\mohamed.chamlal\\Desktop\\YPPFMCG.xlsx";
+    static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests\\test1.xlsx";
     static final int INDEX = 0;
 
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
-        Workbook workbook = builder.buildWorkbook("C:\\Users\\mohamed.chamlal\\Desktop\\YPPFMCG.xlsx");
+        Workbook workbook = builder.buildWorkbook(PATH);
         ExcelFile excelFile = new ExcelFile();
 
         for(int i = 0; i < indexes.length; ++i) {
@@ -40,15 +40,15 @@ public class Main {
     }
 
     private static void printMap(Map<String, ERow> map) {
-        Iterator var1 = map.keySet().iterator();
+        Iterator rows = map.keySet().iterator();
 
-        while(var1.hasNext()) {
-            String key = (String)var1.next();
+        while(rows.hasNext()) {
+            String key = (String)rows.next();
             System.out.print(key + " :");
-            Iterator var3 = ((List)map.get(key)).iterator();
+            Iterator rowsElemets = ((List)map.get(key).getElements()).iterator();
 
-            while(var3.hasNext()) {
-                String value = (String)var3.next();
+            while(rowsElemets.hasNext()) {
+                String value = (String)rowsElemets.next();
                 System.out.print(value + "-");
             }
 

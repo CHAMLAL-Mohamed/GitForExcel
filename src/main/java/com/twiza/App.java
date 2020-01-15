@@ -11,96 +11,50 @@ import java.util.List;
 import java.util.Map;
 
 public class App {
-<<<<<<< HEAD
 
-    static int[] indexes = new int[]{0,1,2};
-    static EBuilder builder;
-    static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests";
-=======
+
     static int[] indexes = new int[]{0};
     static EBuilder builder;
-    static final String PATH1 = "C:\\data\\TestFiles\\GitForExcelTest1.xlsx";
-    static final String PATH2 = "C:\\data\\TestFiles\\GitForExcelTest2.xlsx";
->>>>>>> 94f4d4c12cdef1da5b39aa379153aa7d2a95cdf1
+    static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests\\test1.xlsx";
     static final int INDEX = 0;
-
 
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
-<<<<<<< HEAD
-        Workbook workbook1 = builder.buildWorkbook(PATH+"\\test1.xlsx");
-        Workbook workbook2 = builder.buildWorkbook(PATH+"\\test2.xlsx");
-        ExcelFile excelFile1 = new ExcelFile();
-        ExcelFile excelFile2 = new ExcelFile();
+        Workbook workbook = builder.buildWorkbook(PATH);
+        ExcelFile excelFile = new ExcelFile();
 
         for(int i = 0; i < indexes.length; ++i) {
-            excelFile1.AddSheet(builder.buildESheet(workbook1, indexes[i]));
+            excelFile.AddSheet(builder.buildESheet(workbook, indexes[i]));
         }
-        for(int i = 0; i < indexes.length; ++i) {
-            excelFile2.AddSheet(builder.buildESheet(workbook2, indexes[i]));
-        }
-        excelFile2.compare(excelFile1);
 
-//        Map map = null;
-//
-//        try {
-//            map = excelFile1.getSheetData(workbook1.getSheetName(indexes[1]));
-//            printMap(map);
-//        } catch (NullPointerException var5) {
-//            System.out.println(" the ExcelFile doesn't contain this sheet");
-//        } catch (IllegalArgumentException var6) {
-//            System.out.println("No sheet at that Index");
-//        }
-=======
-        Workbook workbook1 = builder.buildWorkbook(PATH1);
-        Workbook workbook2 = builder.buildWorkbook(PATH2);
-        ExcelFile newFile = new ExcelFile();
-        ExcelFile oldFile = new ExcelFile();
-
-        for (int index : indexes) {
-            newFile.AddSheet(builder.buildESheet(workbook1, index));
-            oldFile.AddSheet(builder.buildESheet(workbook2, index));
-        }
-        ExcelFile.getFilesDiff(newFile, oldFile);
-
+        Map map = null;
 
         try {
-            Map<String, List<String>> map = newFile.getESheet(workbook1.getSheetName(indexes[0])).getData();
+            map = excelFile.getSheetData(workbook.getSheetName(indexes[0]));
             printMap(map);
-        } catch (NullPointerException e) {
+        } catch (NullPointerException var5) {
             System.out.println(" the ExcelFile doesn't contain this sheet");
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException var6) {
             System.out.println("No sheet at that Index");
-            e.printStackTrace();
         }
->>>>>>> 94f4d4c12cdef1da5b39aa379153aa7d2a95cdf1
 
     }
 
-    private static void printMap(Map<String, List<String>> map) {
-<<<<<<< HEAD
-        Iterator var1 = map.keySet().iterator();
+    private static void printMap(Map<String, ERow> map) {
+        Iterator rows = map.keySet().iterator();
 
-        while(var1.hasNext()) {
-            String key = (String)var1.next();
+        while(rows.hasNext()) {
+            String key = (String)rows.next();
             System.out.print(key + " :");
-            Iterator var3 = ((List)map.get(key)).iterator();
+            Iterator rowsElemets = ((List)map.get(key).getElements()).iterator();
 
-            while(var3.hasNext()) {
-                String value = (String)var3.next();
+            while(rowsElemets.hasNext()) {
+                String value = (String)rowsElemets.next();
                 System.out.print(value + "-");
             }
 
             System.out.println();
         }
 
-=======
-        map.keySet().forEach(key -> {
-            System.out.print(key + " :");
-            map.get(key).forEach(var -> System.out.print(var + "-"));
-            System.out.println();
-        });
->>>>>>> 94f4d4c12cdef1da5b39aa379153aa7d2a95cdf1
     }
 }
