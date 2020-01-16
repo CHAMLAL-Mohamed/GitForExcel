@@ -13,43 +13,48 @@ import java.util.Map;
 public class App {
 
 
-    static int[] indexes = new int[]{0};
+    static int[] indexes = new int[]{0, 1, 2};
     static EBuilder builder;
     static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests\\test1.xlsx";
+    static final String PATH1 = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests\\test2.xlsx";
+
     static final int INDEX = 0;
 
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
-        Workbook workbook = builder.buildWorkbook(PATH);
+        Workbook workbook = builder.buildWorkbook(args[2]);
         ExcelFile excelFile = new ExcelFile();
+        Workbook workbook1 = builder.buildWorkbook(args[1]);
+        ExcelFile excelFile1 = new ExcelFile();
 
-        for(int i = 0; i < indexes.length; ++i) {
+        for (int i = 0; i < indexes.length; ++i) {
             excelFile.AddSheet(builder.buildESheet(workbook, indexes[i]));
+            excelFile1.AddSheet(builder.buildESheet(workbook1, indexes[i]));
         }
-
-        Map map = null;
-
-        try {
-            map = excelFile.getSheetData(workbook.getSheetName(indexes[0]));
-            printMap(map);
-        } catch (NullPointerException var5) {
-            System.out.println(" the ExcelFile doesn't contain this sheet");
-        } catch (IllegalArgumentException var6) {
-            System.out.println("No sheet at that Index");
-        }
+        excelFile.compare(excelFile1);
+//        Map map = null;
+//
+//        try {
+//            map = excelFile.getSheetData(workbook.getSheetName(indexes[0]));
+//            printMap(map);
+//        } catch (NullPointerException var5) {
+//            System.out.println(" the ExcelFile doesn't contain this sheet");
+//        } catch (IllegalArgumentException var6) {
+//            System.out.println("No sheet at that Index");
+//        }
 
     }
 
     private static void printMap(Map<String, ERow> map) {
         Iterator rows = map.keySet().iterator();
 
-        while(rows.hasNext()) {
-            String key = (String)rows.next();
+        while (rows.hasNext()) {
+            String key = (String) rows.next();
             System.out.print(key + " :");
-            Iterator rowsElemets = ((List)map.get(key).getElements()).iterator();
+            Iterator rowsElemets = ((List) map.get(key).getElements()).iterator();
 
-            while(rowsElemets.hasNext()) {
-                String value = (String)rowsElemets.next();
+            while (rowsElemets.hasNext()) {
+                String value = (String) rowsElemets.next();
                 System.out.print(value + "-");
             }
 

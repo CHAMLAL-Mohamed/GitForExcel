@@ -7,7 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.util.*;
 
 final class ESheet {
-    final String name;
+    private final String name;
     private Map<String, ERow> data;
     private SheetStatus status;
     private DataFormatter dataFormatter;
@@ -18,12 +18,26 @@ final class ESheet {
         this.data = new LinkedHashMap<>();
     }
 
+    ESheet(String name, SheetStatus status) {
+        this.name = name;
+        this.status = status;
+        this.data = new LinkedHashMap<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public Map<String, ERow> getData() {
         return Collections.unmodifiableMap(this.data);
     }
 
     public void setStatus(SheetStatus status) {
         this.status = status;
+    }
+
+    public SheetStatus getStatus() {
+        return status;
     }
 
     public void createSheet(Sheet sheet) throws IllegalArgumentException {
