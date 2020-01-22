@@ -13,25 +13,26 @@ import java.util.Map;
 public class App {
 
 
-    static int[] indexes = new int[]{0, 1, 2};
+    static int[] indexes = new int[]{0, 1};
     static EBuilder builder;
-    static final String PATH = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests\\test1.xlsx";
-    static final String PATH1 = "C:\\Users\\chaml\\OneDrive\\Escritorio\\GitForExcelTests\\test2.xlsx";
+    static final String ROOT = "C:\\data\\TestFiles\\";
+    static final String PATH = ROOT + "test1.xlsx";
+    static final String PATH1 = ROOT + "test2.xlsx";
 
     static final int INDEX = 0;
 
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
-        Workbook workbook = builder.buildWorkbook(args[2]);
+        Workbook workbook = builder.buildWorkbook(PATH);
         ExcelFile excelFile = new ExcelFile();
-        Workbook workbook1 = builder.buildWorkbook(args[1]);
+        Workbook workbook1 = builder.buildWorkbook(PATH1);
         ExcelFile excelFile1 = new ExcelFile();
 
         for (int i = 0; i < indexes.length; ++i) {
             excelFile.AddSheet(builder.buildESheet(workbook, indexes[i]));
             excelFile1.AddSheet(builder.buildESheet(workbook1, indexes[i]));
         }
-        excelFile.compare(excelFile1);
+        excelFile1.compare(excelFile);
 //        Map map = null;
 //
 //        try {

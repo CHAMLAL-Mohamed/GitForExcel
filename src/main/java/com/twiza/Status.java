@@ -1,5 +1,5 @@
 package com.twiza;
 
-public enum SheetStatus {
+public enum Status {
         DELETED, ADDED, COMMON
 }

@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 public class ERow {
-    final String id;
-    List<String> elements;
-    Map<Integer, String> changedElements;
+    private final String id;
+    private List<String> elements;
+    private Status status;
+    private Map<Integer, String> changedElements;
 
-    public ERow(String id,List<String> elements) {
+    public ERow(String id, List<String> elements) {
         this.id = id;
         this.elements = elements;
         this.changedElements = new HashMap<>();
@@ -22,6 +23,14 @@ public class ERow {
 
     public List<String> getElements() {
         return elements;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public void setElements(List<String> elements) {

@@ -5,11 +5,13 @@ import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 final class ESheet {
     private final String name;
     private Map<String, ERow> data;
-    private SheetStatus status;
+    private Status status;
     private DataFormatter dataFormatter;
     private FormulaEvaluator formulaEvaluator;
 
@@ -18,7 +20,7 @@ final class ESheet {
         this.data = new LinkedHashMap<>();
     }
 
-    ESheet(String name, SheetStatus status) {
+    ESheet(String name, Status status) {
         this.name = name;
         this.status = status;
         this.data = new LinkedHashMap<>();
@@ -32,11 +34,11 @@ final class ESheet {
         return Collections.unmodifiableMap(this.data);
     }
 
-    public void setStatus(SheetStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    public SheetStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
@@ -49,6 +51,48 @@ final class ESheet {
             ERow row = new ERow(list.get(0), list.subList(1, list.size()));
             this.data.putIfAbsent(row.getId(), row);
         }
+    }
+
+    private void addRow(ERow row, Status status) {
+        ERow newRow = new ERow(row.getId(), row.getElements());
+        newRow.setStatus(status);
+        this.data.putIfAbsent(newRow.getId(), newRow);
+    }
+
+    ESheet compare(ESheet sheet) {
+        Set<String> allElements = new HashSet<>(sheet.getData().keySet());
+        allElements.addAll(this.getData().keySet());
+        ESheet compareSheet = new ESheet(this.getName());
+
+
+        //or common between the two.
+        Consumer<String> assignElementStatus = elementId -> {
+            if (!this.getData().containsKey(elementId)) {
+                compareSheet.addRow(sheet.getData().get(elementId), Status.DELETED);
+            } else if (!sheet.getData().containsKey(elementId)) {
+                compareSheet.addRow(this.getData().get(elementId), Status.ADDED);
+            } else {
+                compareSheet.addRow(sheet.getData().get(elementId), Status.COMMON);
+            }
+        };
+
+        Consumer<String> displayElementStatus = elementId -> System.out.println(
+                "Key: " + elementId + " status: "
+                        + compareSheet.getData().get(elementId).getStatus());
+
+
+        Predicate<String> filterCommonElements = elementId ->
+                compareSheet.getData().get(elementId).getStatus().equals(Status.COMMON);
+
+
+        allElements.stream()
+                .peek(assignElementStatus)
+                .peek(displayElementStatus)
+                .filter(filterCommonElements)
+                .forEach(elementId -> System.out.println("commun elements kept: " + elementId));  //TODO: Implement the logic for Row Comparing
+
+
+        return compareSheet;
     }
 
     private List<String> readRow(Row row) {
@@ -87,9 +131,5 @@ final class ESheet {
         cell.setCellComment(comment);
     }
 
-    void compareSheet(ESheet sheet) {
-
-
-    }
 
 }

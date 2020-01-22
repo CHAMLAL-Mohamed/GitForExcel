@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+
 public class ExcelFile {
     private Map<String, ESheet> sheets;
 
@@ -19,6 +20,7 @@ public class ExcelFile {
     public ExcelFile() {
         sheets = new HashMap<>();
     }
+
     public void AddSheet(Sheet sheet) {
         this.sheets.computeIfAbsent(sheet.getSheetName(), (k) -> {
             ESheet eSheet = new ESheet(sheet.getSheetName());
@@ -26,7 +28,8 @@ public class ExcelFile {
             return eSheet;
         });
     }
-    private void addSheet(ESheet eSheet, SheetStatus status) {
+
+    private void addSheet(ESheet eSheet, Status status) {
         eSheet.setStatus(status);
         sheets.putIfAbsent(eSheet.getName(), eSheet);
     }
@@ -34,7 +37,6 @@ public class ExcelFile {
 
     ExcelFile compare(@Nonnull ExcelFile file) {
         // create set with all sheets
-        //TODO : change the set to ESheet instead of Strings and add the status field in ESheet
         Set<String> allSheets = new HashSet<>(file.sheets.keySet());
         allSheets.addAll(this.sheets.keySet());
         ExcelFile compareFile = new ExcelFile();
@@ -43,29 +45,29 @@ public class ExcelFile {
         //or common between the two.
         Consumer<String> assignSheetStatus = sheetName -> {
             if (!this.sheets.containsKey(sheetName)) {
-                compareFile.addSheet(file.sheets.get(sheetName), SheetStatus.DELETED);
+                compareFile.addSheet(file.sheets.get(sheetName), Status.DELETED);
             } else if (!file.sheets.containsKey(sheetName)) {
-                compareFile.addSheet(this.sheets.get(sheetName), SheetStatus.ADDED);
+                compareFile.addSheet(this.sheets.get(sheetName), Status.ADDED);
             } else {
-                compareFile.addSheet(file.sheets.get(sheetName), SheetStatus.COMMON);
+                compareFile.addSheet(file.sheets.get(sheetName), Status.COMMON);
             }
         };
 
-        Consumer<String> displaySheetStatus = sheetName ->
-                System.out.println(
-                        "Key: " + sheetName + " value: "
-                                + compareFile.sheets.get(sheetName).getStatus());
+        Consumer<String> displaySheetStatus = sheetName -> System.out.println(
+                "Key: " + sheetName + " value: "
+                        + compareFile.sheets.get(sheetName).getStatus());
+
 
         Predicate<String> filterCommonSheets = sheetName ->
-                compareFile.sheets.get(sheetName).getStatus().equals(SheetStatus.COMMON);
+                compareFile.sheets.get(sheetName).getStatus().equals(Status.COMMON);
 
         //Starting a stream to assign sheetStatus and filter only common sheets
         allSheets.stream()
                 .peek(assignSheetStatus)
-                .peek(displaySheetStatus)
+                // .peek(displaySheetStatus)
                 .filter(filterCommonSheets)
-                .forEach(sheetName -> System.out.println("Sheet kept: " + sheetName));  //TODO: Implement the logic for sheet comparing);
-        return null;
+                .forEach(sheetName -> this.sheets.get(sheetName).compare(file.sheets.get(sheetName)));  //DONE: Implement the logic for sheet comparing);
+        return compareFile;
     }
 
 
