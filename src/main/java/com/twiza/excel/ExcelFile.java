@@ -3,14 +3,13 @@
 // (powered by Fernflower decompiler)
 //
 
-package com.twiza;
+package com.twiza.excel;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 
 public class ExcelFile {
@@ -35,7 +34,7 @@ public class ExcelFile {
     }
     //we will compare the sheets first :added, deleted, changed . Take the changed sheets and analyse the added, deleted, and changed elements
 
-    ExcelFile compare(@Nonnull ExcelFile file) {
+    public ExcelFile compare(@Nonnull ExcelFile file) throws NullPointerException {
         // create set with all sheets
         Set<String> allSheets = new HashSet<>(file.sheets.keySet());
         allSheets.addAll(this.sheets.keySet());
@@ -49,24 +48,15 @@ public class ExcelFile {
             } else if (!file.sheets.containsKey(sheetName)) {
                 compareFile.addSheet(this.sheets.get(sheetName), Status.ADDED);
             } else {
-                compareFile.addSheet(file.sheets.get(sheetName), Status.COMMON);
+                compareFile.addSheet(this.sheets.get(sheetName)
+                        .compare(file.sheets.get(sheetName)), Status.COMMON);
             }
+            //Display Sheet Status
+            System.out.println("Key: " + sheetName + " value: "
+                    + compareFile.sheets.get(sheetName).getStatus());
         };
 
-        Consumer<String> displaySheetStatus = sheetName -> System.out.println(
-                "Key: " + sheetName + " value: "
-                        + compareFile.sheets.get(sheetName).getStatus());
-
-
-        Predicate<String> filterCommonSheets = sheetName ->
-                compareFile.sheets.get(sheetName).getStatus().equals(Status.COMMON);
-
-        //Starting a stream to assign sheetStatus and filter only common sheets
-        allSheets.stream()
-                .peek(assignSheetStatus)
-                // .peek(displaySheetStatus)
-                .filter(filterCommonSheets)
-                .forEach(sheetName -> this.sheets.get(sheetName).compare(file.sheets.get(sheetName)));  //DONE: Implement the logic for sheet comparing);
+        allSheets.forEach(assignSheetStatus);
         return compareFile;
     }
 

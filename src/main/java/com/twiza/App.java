@@ -3,6 +3,10 @@
  */
 package com.twiza;
 
+import com.twiza.excel.EBuilder;
+import com.twiza.excel.ERow;
+import com.twiza.excel.ExcelBuilder;
+import com.twiza.excel.ExcelFile;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
@@ -33,10 +37,10 @@ public class App {
             excelFile1.AddSheet(builder.buildESheet(workbook1, indexes[i]));
         }
         excelFile1.compare(excelFile);
-//        Map map = null;
-//
 //        try {
-//            map = excelFile.getSheetData(workbook.getSheetName(indexes[0]));
+//            Map map = excelFile1.compare(excelFile).getSheetData(workbook.getSheetName(indexes[0]));
+//            //   excelFile.getSheetData(workbook.getSheetName(indexes[0]));
+//            System.out.println("-----------------------Print Sheet1--------------------------");
 //            printMap(map);
 //        } catch (NullPointerException var5) {
 //            System.out.println(" the ExcelFile doesn't contain this sheet");

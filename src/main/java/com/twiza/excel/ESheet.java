@@ -1,4 +1,4 @@
-package com.twiza;
+package com.twiza.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
@@ -6,7 +6,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 final class ESheet {
     private final String name;
@@ -20,29 +19,24 @@ final class ESheet {
         this.data = new LinkedHashMap<>();
     }
 
-    ESheet(String name, Status status) {
-        this.name = name;
-        this.status = status;
-        this.data = new LinkedHashMap<>();
-    }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public Map<String, ERow> getData() {
+    Map<String, ERow> getData() {
         return Collections.unmodifiableMap(this.data);
     }
 
-    public void setStatus(Status status) {
+    void setStatus(Status status) {
         this.status = status;
     }
 
-    public Status getStatus() {
+    Status getStatus() {
         return status;
     }
 
-    public void createSheet(Sheet sheet) throws IllegalArgumentException {
+    void createSheet(Sheet sheet) throws IllegalArgumentException {
         this.dataFormatter = new DataFormatter();
         this.formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) sheet.getWorkbook());
         Iterator rows = sheet.rowIterator();
@@ -54,16 +48,14 @@ final class ESheet {
     }
 
     private void addRow(ERow row, Status status) {
-        ERow newRow = new ERow(row.getId(), row.getElements());
-        newRow.setStatus(status);
-        this.data.putIfAbsent(newRow.getId(), newRow);
+        row.setStatus(status);
+        this.data.putIfAbsent(row.getId(), row);
     }
 
     ESheet compare(ESheet sheet) {
         Set<String> allElements = new HashSet<>(sheet.getData().keySet());
         allElements.addAll(this.getData().keySet());
         ESheet compareSheet = new ESheet(this.getName());
-
 
         //or common between the two.
         Consumer<String> assignElementStatus = elementId -> {
@@ -72,26 +64,14 @@ final class ESheet {
             } else if (!sheet.getData().containsKey(elementId)) {
                 compareSheet.addRow(this.getData().get(elementId), Status.ADDED);
             } else {
-                compareSheet.addRow(sheet.getData().get(elementId), Status.COMMON);
+                compareSheet.addRow(this.getData().get(elementId)
+                        .compare(sheet.getData().get(elementId)), Status.COMMON);
             }
+            //Display Row status
+            System.out.println("Key: " + elementId + " status: "
+                    + compareSheet.getData().get(elementId).getStatus());
         };
-
-        Consumer<String> displayElementStatus = elementId -> System.out.println(
-                "Key: " + elementId + " status: "
-                        + compareSheet.getData().get(elementId).getStatus());
-
-
-        Predicate<String> filterCommonElements = elementId ->
-                compareSheet.getData().get(elementId).getStatus().equals(Status.COMMON);
-
-
-        allElements.stream()
-                .peek(assignElementStatus)
-                .peek(displayElementStatus)
-                .filter(filterCommonElements)
-                .forEach(elementId -> System.out.println("commun elements kept: " + elementId));  //TODO: Implement the logic for Row Comparing
-
-
+        allElements.forEach(assignElementStatus);  //TODO: Implement the logic for Row Comparing
         return compareSheet;
     }
 

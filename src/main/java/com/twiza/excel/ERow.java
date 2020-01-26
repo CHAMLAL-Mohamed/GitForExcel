@@ -1,6 +1,5 @@
-package com.twiza;
+package com.twiza.excel;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,5 +42,16 @@ public class ERow {
 
     public void setChangedElements(Map<Integer, String> changedElements) {
         this.changedElements = changedElements;
+    }
+
+    ERow compare(ERow row) {
+        for (int i = 0; i < this.getElements().size(); i++) {
+            if (!this.getElements().get(i).equals(row.getElements().get(i))) {
+                this.changedElements.putIfAbsent(i, row.getElements().get(i));
+                System.out.println("The element " + this.getId() + " has changed from " + row.getElements().get(i)
+                        + " to: " + this.getElements().get(i));
+            }
+        }
+        return this;
     }
 }
