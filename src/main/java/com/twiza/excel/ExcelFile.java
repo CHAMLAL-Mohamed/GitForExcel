@@ -6,6 +6,8 @@
 package com.twiza.excel;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -52,12 +54,25 @@ public class ExcelFile {
                         .compare(file.sheets.get(sheetName)), Status.COMMON);
             }
             //Display Sheet Status
-            System.out.println("Key: " + sheetName + " value: "
+            System.out.println("Sheet: " + sheetName + " have the status: "
                     + compareFile.sheets.get(sheetName).getStatus());
         };
 
         allSheets.forEach(assignSheetStatus);
         return compareFile;
+    }
+
+    public void writeToExcel(Workbook workbook) throws NullPointerException {
+        try {
+
+            this.sheets.keySet().forEach(key -> {
+                ESheet sheet = sheets.get(key);
+                sheet.writeToSheet(workbook.createSheet(key));
+            });
+        } catch (NullPointerException e) {
+            throw new NullPointerException("This Workbook is null");
+        }
+
     }
 
 

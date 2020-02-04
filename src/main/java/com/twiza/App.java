@@ -8,7 +8,9 @@ import com.twiza.excel.ERow;
 import com.twiza.excel.ExcelBuilder;
 import com.twiza.excel.ExcelFile;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -17,11 +19,13 @@ import java.util.Map;
 public class App {
 
 
-    static int[] indexes = new int[]{0, 1};
+    static int[] indexes = new int[]{0};
     static EBuilder builder;
     static final String ROOT = "C:\\data\\TestFiles\\";
     static final String PATH = ROOT + "test1.xlsx";
     static final String PATH1 = ROOT + "test2.xlsx";
+    static final String diffPath = ROOT + "diffResult.xlsx";
+
 
     static final int INDEX = 0;
 
@@ -31,12 +35,24 @@ public class App {
         ExcelFile excelFile = new ExcelFile();
         Workbook workbook1 = builder.buildWorkbook(PATH1);
         ExcelFile excelFile1 = new ExcelFile();
+        Workbook diffWorkbook = new XSSFWorkbook();
 
-        for (int i = 0; i < indexes.length; ++i) {
-            excelFile.AddSheet(builder.buildESheet(workbook, indexes[i]));
-            excelFile1.AddSheet(builder.buildESheet(workbook1, indexes[i]));
+
+        for (int index : indexes) {
+            excelFile.AddSheet(builder.buildESheet(workbook, index));
+            excelFile1.AddSheet(builder.buildESheet(workbook1, index));
         }
-        excelFile1.compare(excelFile);
+
+        excelFile1.compare(excelFile).writeToExcel(diffWorkbook);
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(diffPath);
+            diffWorkbook.write(outputStream);
+            diffWorkbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 //        try {
 //            Map map = excelFile1.compare(excelFile).getSheetData(workbook.getSheetName(indexes[0]));
 //            //   excelFile.getSheetData(workbook.getSheetName(indexes[0]));
