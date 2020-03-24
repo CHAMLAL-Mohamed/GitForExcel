@@ -12,15 +12,15 @@ public final class ESheet {
     /**
      * no constrains on Headers, usually used for sheets without defined templates/Const Number of columns
      */
-    public static final int READ_MODE_DEFAULT = 0;
+    private static final int READ_MODE_DEFAULT = 0;
     /**
      * fixed number of columns, any extra columns will be dropped
      */
-    public static final int READ_MODE_FIX_COLUMNS_NUMBER = 1;
+    private static final int READ_MODE_FIX_COLUMNS_NUMBER = 1;
     /**
      * using a defined template to read sheet, any columns that is not part of template will be dropped
      */
-    public static final int READ_MODE_TEMPLATE = 2;
+    private static final int READ_MODE_TEMPLATE = 2;
     /***/
 
     public static final int READ_MODE_SAME_HEADERS = 3;
