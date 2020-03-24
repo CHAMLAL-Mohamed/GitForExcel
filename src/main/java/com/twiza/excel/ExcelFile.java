@@ -25,7 +25,6 @@ public class ExcelFile {
     /**
      * --------------------------------------------------------------------------Constructors--------------------------------------
      */
-    /*-------------------------------------------------------------------------------------------------------------------------------*/
     public ExcelFile(ExcelFileParams excelFileParams) {
         this(excelFileParams, null);
     }
@@ -50,7 +49,6 @@ public class ExcelFile {
     /**
      * --------------------------------------------------------------------------Logic Functions--------------------------------------
      */
-    /*-------------------------------------------------------------------------------------------------------------------------------*/
     private Map<String, ESheet> generateESheets(ExcelFileParams excelFileParams, List<String> ignoreSheetsPatterns) {
         Map<String, ESheet> eSheetsMap = new LinkedHashMap<>();
         filterIgnoredSheets(excelFileParams, ignoreSheetsPatterns).forEach(sheet -> eSheetsMap.put(sheet.getSheetName(),
