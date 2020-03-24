@@ -29,6 +29,10 @@ public class ExcelBuilder implements EBuilder {
         return new XSSFWorkbook(path);
     }
 
+    public ExcelFileParams buildExcelFileParams(String path) throws IOException {
+        return new ExcelFileParams(new XSSFWorkbook(path));
+    }
+
     public Sheet buildESheet(Workbook workbook, int index) {
         return workbook.getSheetAt(index);
     }

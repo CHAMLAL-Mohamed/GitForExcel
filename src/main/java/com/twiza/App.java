@@ -3,14 +3,8 @@
  */
 package com.twiza;
 
-import com.twiza.excel.EBuilder;
-import com.twiza.excel.ERow;
-import com.twiza.excel.ExcelBuilder;
-import com.twiza.excel.ExcelFile;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.twiza.excel.*;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -22,60 +16,55 @@ public class App {
     static int[] indexes = new int[]{0};
     static EBuilder builder;
     static final String ROOT = "C:\\data\\TestFiles\\";
-    static final String PATH = ROOT + "test1.xlsx";
-    static final String PATH1 = ROOT + "test2.xlsx";
+    static final String PATH1 = ROOT + "test1.xlsx";
+    static final String PATH2 = ROOT + "test2.xlsx";
     static final String diffPath = ROOT + "diffResult.xlsx";
 
 
-    static final int INDEX = 0;
-
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
-        Workbook workbook = builder.buildWorkbook(PATH);
-        ExcelFile excelFile = new ExcelFile();
-        Workbook workbook1 = builder.buildWorkbook(PATH1);
-        ExcelFile excelFile1 = new ExcelFile();
-        Workbook diffWorkbook = new XSSFWorkbook();
+        ExcelFile excelFile1 = new ExcelFile(builder.buildExcelFileParams(PATH1));
+        ExcelFile excelFile2 = new ExcelFile(builder.buildExcelFileParams(PATH2));
 
 
-        for (int index : indexes) {
-            excelFile.AddSheet(builder.buildESheet(workbook, index));
-            excelFile1.AddSheet(builder.buildESheet(workbook1, index));
-        }
-
-        excelFile1.compare(excelFile).writeToExcel(diffWorkbook);
+//
+//        try (Workbook diffWorkbook = new XSSFWorkbook()) {
+//            excelFile2.compare(excelFile1).writeToExcel(diffWorkbook);
+//            FileOutputStream outputStream = new FileOutputStream(diffPath);
+//            diffWorkbook.write(outputStream);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         try {
-            FileOutputStream outputStream = new FileOutputStream(diffPath);
-            diffWorkbook.write(outputStream);
-            diffWorkbook.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            // Map<String, ERow> map = excelFile1.getSheetData(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
+            ESheet eSheet = excelFile1.getESheet(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
+            //   excelFile.getSheetData(workbook.getSheetName(indexes[0]));
+            System.out.println("-----------------------Print Sheet1--------------------------");
+            printEsheet(eSheet);
+            // printMap(map);
+        } catch (NullPointerException var5) {
+            System.out.println(" the ExcelFile doesn't contain this sheet");
+        } catch (IllegalArgumentException var6) {
+            System.out.println("No sheet at that Index");
         }
 
-//        try {
-//            Map map = excelFile1.compare(excelFile).getSheetData(workbook.getSheetName(indexes[0]));
-//            //   excelFile.getSheetData(workbook.getSheetName(indexes[0]));
-//            System.out.println("-----------------------Print Sheet1--------------------------");
-//            printMap(map);
-//        } catch (NullPointerException var5) {
-//            System.out.println(" the ExcelFile doesn't contain this sheet");
-//        } catch (IllegalArgumentException var6) {
-//            System.out.println("No sheet at that Index");
-//        }
+    }
+
+    private static void printEsheet(ESheet eSheet) {
+        System.out.println(eSheet);
 
     }
 
     private static void printMap(Map<String, ERow> map) {
-        Iterator rows = map.keySet().iterator();
-
+        Iterator<String> rows = map.keySet().iterator();
         while (rows.hasNext()) {
             String key = (String) rows.next();
             System.out.print(key + " :");
-            Iterator rowsElemets = ((List) map.get(key).getElements()).iterator();
+            Iterator rowsElements = ((List) map.get(key).getElements()).iterator();
 
-            while (rowsElemets.hasNext()) {
-                String value = (String) rowsElemets.next();
+            while (rowsElements.hasNext()) {
+                String value = (String) rowsElements.next();
                 System.out.print(value + "-");
             }
 

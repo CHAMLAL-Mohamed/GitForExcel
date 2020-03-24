@@ -1,5 +1,5 @@
 package com.twiza.excel;
 
 public enum Status {
-        DELETED, ADDED, COMMON
+    NEW, DELETED, ADDED, COMMON
 }
