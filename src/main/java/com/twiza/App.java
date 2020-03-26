@@ -8,28 +8,23 @@ import com.twiza.utils.ResourceHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class App {
 
 
     static int[] indexes = new int[]{0};
     static EBuilder builder;
-    /*static final String ROOT = "C:\\data\\TestFiles\\";
-    static final String PATH1 = ROOT + "test1.xlsx";
-    static final String PATH2 = ROOT + "test2.xlsx";
-    static final String diffPath = ROOT + "diffResult.xlsx";*/
 
-    public static String PATH = "test1.xlsx";
+    public static String PATH1 = "test1.xlsx";
+    public static String PATH2 = "test2.xlsx";
+    public static String diffPath = "diffResult.xlsx";
 
     public static void main(String[] args) throws IOException {
         builder = ExcelBuilder.getInstance();
-        File myExcelFile = ResourceHelper.getResourceFile(PATH);
+        File myExcelFile = ResourceHelper.getResourceFile(PATH1);
         ExcelFileParams excelFileParams = builder.buildExcelFileParams(myExcelFile.getAbsolutePath());
         ExcelFile excelFile1 = new ExcelFile(excelFileParams);
-        //ExcelFile excelFile2 = new ExcelFile(builder.buildExcelFileParams(PATH2));
+        // ExcelFile excelFile2 = new ExcelFile(builder.buildExcelFileParams(ResourceHelper.getResourceFile(PATH2).getAbsolutePath()));
 
 
 //
@@ -42,12 +37,10 @@ public class App {
 //        }
 
         try {
-            // Map<String, ERow> map = excelFile1.getSheetData(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
+
             ESheet eSheet = excelFile1.getESheet(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
-            //   excelFile.getSheetData(workbook.getSheetName(indexes[0]));
             System.out.println("-----------------------Print Sheet1--------------------------");
             printEsheet(eSheet);
-            // printMap(map);
         } catch (NullPointerException var5) {
             System.out.println(" the ExcelFile doesn't contain this sheet");
         } catch (IllegalArgumentException var6) {
@@ -58,7 +51,6 @@ public class App {
 
     private static void printEsheet(ESheet eSheet) {
         System.out.println(eSheet);
-
     }
 
 }

@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 
 public class ExcelFile {
@@ -83,7 +84,10 @@ public class ExcelFile {
      */
     private boolean shouldBeIgnored(String sheetName, List<String> ignoreSheetsPatterns) {
         //TODO(1): check if patterns is not empty and create the logic to check against the patterns.
-        return false; //Default Value
+        if (ignoreSheetsPatterns == null) {
+            return false;
+        }
+        return ignoreSheetsPatterns.stream().anyMatch(pattern -> Pattern.matches(pattern, sheetName));
     }
 
 

@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-<<<<<<< Updated upstream
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GitForExcel.iml" filepath="$PROJECT_DIR$/.idea/GitForExcel.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.main.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.test.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.test.iml" />
-=======
-      <module fileurl="file://$PROJECT_DIR$/GitForExcel.iml" filepath="$PROJECT_DIR$/GitForExcel.iml" />
->>>>>>> Stashed changes
     </modules>
   </component>
 </project>
