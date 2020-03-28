@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/GitForExcel.iml" filepath="$PROJECT_DIR$/.idea/GitForExcel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GitForExcel.iml" filepath="$PROJECT_DIR$/GitForExcel.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.main.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.test.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.test.iml" />
     </modules>

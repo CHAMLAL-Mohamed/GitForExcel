@@ -31,7 +31,10 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.powermock:powermock-mockito-release-full:1.6.4'
+    testImplementation 'org.javassist:javassist:3.24.1-GA'
+    testImplementation'org.mockito:mockito-core:2.18.0'
+    testImplementation'org.powermock:powermock-api-mockito2:2.0.0-beta.5'
+    testImplementation'org.powermock:powermock-module-junit4:2.0.0-beta.5'
 }
 
 application {

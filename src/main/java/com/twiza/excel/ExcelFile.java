@@ -51,9 +51,11 @@ public class ExcelFile {
      * --------------------------------------------------------------------------Logic Functions--------------------------------------
      */
     private Map<String, ESheet> generateESheets(ExcelFileParams excelFileParams, List<String> ignoreSheetsPatterns) {
-        Map<String, ESheet> eSheetsMap = new LinkedHashMap<>();
-        filterIgnoredSheets(excelFileParams, ignoreSheetsPatterns).forEach(sheet -> eSheetsMap.put(sheet.getSheetName(),
-                new ESheet(sheet, excelFileParams.getDataFormatter(), excelFileParams.getFormulaEvaluator())));
+        Map<String, ESheet> eSheetsMap = new LinkedHashMap<>(); // Temporary List to hold the ESheets
+        filterIgnoredSheets(excelFileParams, ignoreSheetsPatterns).
+                forEach(sheet -> eSheetsMap.put(sheet.getSheetName(),
+                        new ESheet(sheet, excelFileParams.getDataFormatter(), excelFileParams.getFormulaEvaluator()))
+                );
 
         return eSheetsMap;
     }
@@ -67,11 +69,13 @@ public class ExcelFile {
      */
     private List<Sheet> filterIgnoredSheets(ExcelFileParams excelFileParams, List<String> ignoreSheetsPatterns) {
         List<Sheet> sheets = new ArrayList<>();
-        excelFileParams.getWorkbook().iterator().forEachRemaining(sheet -> {
-            if (!shouldBeIgnored(sheet.getSheetName(), ignoreSheetsPatterns)) {
-                sheets.add(sheet);
-            }
-        });
+        excelFileParams.getWorkbook()
+                .iterator()
+                .forEachRemaining(sheet -> {
+                    if (!shouldBeIgnored(sheet.getSheetName(), ignoreSheetsPatterns)) {
+                        sheets.add(sheet);
+                    }
+                });
         return sheets;
     }
 

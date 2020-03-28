@@ -1,8 +1,6 @@
 package com.twiza.excel;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.*;
 
@@ -22,12 +20,23 @@ public class ERow {
     /**
      * --------------------------------------------------------------------------Constructors--------------------------------------
      */
-    /*-------------------------------------------------------------------------------------------------------------------------------*/
     public ERow(String id, List<String> elements) {
         this.id = id;
         this.elements = elements;
         this.changedElements = new HashMap<>();
         this.status = DEFAULT_EROW_STATUS;
+    }
+
+    public ERow(ERow eRow) {
+        this.id = eRow.getId();
+        this.elements = eRow.getElements();
+        this.changedElements = eRow.getChangedElements();
+        this.status = eRow.getStatus();
+    }
+
+    public ERow(Row row, DataFormatter dataFormatter, FormulaEvaluator formulaEvaluator) {
+        this(row, dataFormatter, formulaEvaluator, DEFAULT_EROW_STATUS, DEFAULT_ID_COLUMN);
+
     }
 
     public ERow(Row row, DataFormatter dataFormatter, FormulaEvaluator formulaEvaluator, Status status) {
@@ -40,8 +49,9 @@ public class ERow {
         this.dataFormatter = dataFormatter;
         this.formulaEvaluator = formulaEvaluator;
         this.idColumn = idColumn;
-        this.id = assignId(idColumn);
+        this.id = assignId(this.idColumn);
         this.elements = assignElements();
+        this.changedElements = new HashMap<>();
         this.status = status;
 
     }
@@ -61,15 +71,15 @@ public class ERow {
     private List<String> assignElements() {
         if (row == null) {
             return null;
-        } else {
-            List<String> rowList = new ArrayList<>();
-            Iterator<Cell> cells = row.cellIterator();
-            cells.next(); // to ignore the firstColumn(default id column)
-            while (cells.hasNext()) {
-                rowList.add(readCell(cells.next(), dataFormatter, formulaEvaluator));
-            }
-            return rowList;
         }
+        List<String> rowList = new ArrayList<>();
+        //StreamSupport.stream(row.spliterator(), false).filter(cell -> cell.getColumnIndex() != idColumn).map(cell -> readCell(cell, dataFormatter, formulaEvaluator)).collect(Collectors.toList());
+        for (int i = 0; i < row.getLastCellNum(); i++) {
+            if (i != idColumn) {
+                rowList.add(readCell(row.getCell(i), dataFormatter, formulaEvaluator));
+            }
+        }
+        return rowList;
     }
 
 
@@ -125,13 +135,13 @@ public class ERow {
             if (!this.getElements().get(i).equals(row.getElements().get(i))) {
                 this.changedElements.putIfAbsent(i, row.getElements().get(i));
                 System.out.println("The element " + this.getId() + " has changed from: " + row.getElements().get(i)
-                        + " to: " + this.getElements().get(i));
+                                           + " to: " + this.getElements().get(i));
             }
         }
         if (changedElements.size() > 0) {
             System.out.println("----------------------------------------------------------------------------------------------");
             changedElements.forEach((integer, s) -> System.out.println("The ID: " + this.getId() + " has changed from: " + s
-                    + " to: " + elements.get(integer)));
+                                                                               + " to: " + elements.get(integer)));
             System.out.println("----------------------------------------------------------------------------------------------");
         }
 
@@ -169,7 +179,7 @@ public class ERow {
                 break;
             case COMMON:
                 backgroundColor = !changedElements.isEmpty() ?
-                        IndexedColors.YELLOW.getIndex() : IndexedColors.WHITE.getIndex();
+                                          IndexedColors.YELLOW.getIndex() : IndexedColors.WHITE.getIndex();
                 break;
             default:
                 backgroundColor = IndexedColors.WHITE.getIndex();
