@@ -5,6 +5,7 @@
 
 package com.twiza.excel;
 
+import com.twiza.domain.Status;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 

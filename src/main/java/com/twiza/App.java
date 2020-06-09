@@ -20,6 +20,8 @@ public class App {
     public static String diffPath = "diffResult.xlsx";
 
     public static void main(String[] args) throws IOException {
+
+        //TODO(1): read Templates. (Singleton)
         builder = ExcelBuilder.getInstance();
         File myExcelFile = ResourceHelper.getResourceFile(PATH1);
         ExcelFileParams excelFileParams = builder.buildExcelFileParams(myExcelFile.getAbsolutePath());

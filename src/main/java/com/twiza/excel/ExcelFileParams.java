@@ -2,10 +2,7 @@ package com.twiza.excel;
 
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelFileParams {
 
@@ -16,7 +13,8 @@ public class ExcelFileParams {
     ExcelFileParams(Workbook workbook) {
         this.workbook = workbook;
         dataFormatter = new DataFormatter();
-        formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) workbook);
+        formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
     }
 
 

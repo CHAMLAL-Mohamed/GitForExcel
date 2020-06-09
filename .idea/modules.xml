@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/GitForExcel.iml" filepath="$PROJECT_DIR$/GitForExcel.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.main.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitForExcel.test.iml" filepath="$PROJECT_DIR$/.idea/modules/GitForExcel.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/projects.GitForExcel.iml" filepath="$PROJECT_DIR$/.idea/modules/projects.GitForExcel.iml" />
     </modules>
   </component>
 </project>
