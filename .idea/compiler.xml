@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="GitForExcel" target="11" />
       <module name="GitForExcel.main" target="11" />
       <module name="GitForExcel.test" target="11" />
     </bytecodeTargetLevel>

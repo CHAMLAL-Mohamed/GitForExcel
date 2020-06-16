@@ -1,5 +1,7 @@
 package com.twiza.domain;
 
+import java.util.Map;
+
 public interface ESheet {
 
     /**
@@ -9,12 +11,18 @@ public interface ESheet {
      */
     String getName();
 
+
+    Status getStatus();
+
+    void setStatus(Status newStatus);
+
     /**
      * Get the {@link ERow} based on index of the row.
      *
      * @param index of the row in the sheet.
      * @return the ERow in the index position.
      */
+
     ERow getERow(int index);
 
     /**
@@ -23,14 +31,23 @@ public interface ESheet {
      * @param key the unique key used to get the right ERow.
      * @return the correspondent ERow.
      */
+
     ERow getERow(String key);
 
-    void setIdColumns(Integer[] idColumns);
+    ERow getHeaders();
 
-    void setStatus(Status newStatus);
+    Integer[] getKeyColumns();
 
-    boolean addRow(ERow row);
+    void setKeyColumns(Integer[] idColumns);
+
+    boolean addRow(ERow row) throws UnsupportedOperationException;
 
     boolean removeRow(ERow row);
+
+    boolean addColumn(int position);
+
+    Map<String, ERow> getData();
+
+    boolean removeColumn(int position) throws ArrayIndexOutOfBoundsException;
 
 }

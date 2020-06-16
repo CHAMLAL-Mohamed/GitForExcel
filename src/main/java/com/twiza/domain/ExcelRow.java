@@ -4,6 +4,7 @@ package com.twiza.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExcelRow implements ERow {
     /**
@@ -25,6 +26,8 @@ public class ExcelRow implements ERow {
      * The current status, it equals <>Status.NEW</> by default.
      */
     private Status status;
+
+    private String key;
 
     public ExcelRow() {
         this(new ArrayList<>(), DEFAULT_STATUS);
@@ -50,6 +53,11 @@ public class ExcelRow implements ERow {
         return Collections.unmodifiableList(cells);
     }
 
+    @Override
+    public ECell getCell(int position) {
+        return cells.get(position);
+    }
+
     /**
      * retrieve ERow id, by concatenating a list of columns,
      * separated by a special character<>'/'</>
@@ -59,18 +67,18 @@ public class ExcelRow implements ERow {
      * @return a composite, unique id of the row, the columns are separated b
      */
     @Override
-    public String getId(Integer[] idColumns) throws ArrayIndexOutOfBoundsException {
+    public String getKey(Integer[] idColumns) throws ArrayIndexOutOfBoundsException {
         StringBuilder idBuilder = new StringBuilder();
         int idColumnsLength = idColumns.length;
         for (int i = 0; i < idColumnsLength; i++) {
 
-            idBuilder.append(getIdFromIndex(idColumns[i]));
+            idBuilder.append(getKey(idColumns[i]));
             if (i < idColumnsLength - 1) {
                 idBuilder.append(ID_SEPARATOR);
             }
         }
-
-        return idBuilder.toString();
+        key = idBuilder.toString();
+        return key;
     }
 
     /**
@@ -82,8 +90,18 @@ public class ExcelRow implements ERow {
      *                                        or bigger than the cells List size.
      */
 
-    private String getIdFromIndex(int index) throws ArrayIndexOutOfBoundsException {
+    public String getKey(int index) throws ArrayIndexOutOfBoundsException {
         return cells.get(index).getValue();
+    }
+
+    @Override
+    public int getSize() {
+        return cells.size();
+    }
+
+    @Override
+    public boolean containsCells() {
+        return !cells.isEmpty();
     }
 
     /**
@@ -95,5 +113,51 @@ public class ExcelRow implements ERow {
     @Override
     public void setStatus(Status newStatus) {
         this.status = newStatus;
+    }
+
+    @Override
+    public ECell removeCell(int position) {
+        return cells.remove(position);
+    }
+
+    @Override
+    public boolean addCell(ECell cell) {
+        return cells.add(cell);
+    }
+
+    @Override
+    public void addCell(int position, ECell cell) {
+        cells.add(position, cell);
+    }
+
+
+    @Override
+    public boolean updateCellValue(int position, String newValue) {
+        return cells.get(position).updateValue(newValue) != null;
+
+
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof ERow) {
+            return ((ERow) obj).toString().equals(toString());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return cells.stream()
+                    .map(ECell::getValue)
+                    .collect(Collectors.joining());
     }
 }

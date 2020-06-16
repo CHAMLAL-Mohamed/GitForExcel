@@ -2,7 +2,9 @@ package com.twiza.domain;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -17,7 +19,12 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PowerMockIgnore({"javax.management.", "com.sun.org.apache.xerces.", "javax.xml.", "org.xml.", "org.w3c.dom.",
         "com.sun.org.apache.xalan.", "javax.activation.*", "jdk.internal.reflect.*"})
 public class ERowTests {
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
     List<ECell> cells;
+    ERow eRow;
 
     @Before
     public void Setup() {
@@ -26,40 +33,105 @@ public class ERowTests {
         ECell cell3 = mock(ECell.class);
         ECell cell4 = mock(ECell.class);
         ECell cell5 = mock(ECell.class);
-        when(cell1.getValue()).thenReturn("E1");
-        when(cell2.getValue()).thenReturn("E2");
-        when(cell3.getValue()).thenReturn("E3");
-        when(cell4.getValue()).thenReturn("E4");
-        when(cell5.getValue()).thenReturn("E5");
+        when(cell1.getValue()).thenReturn("C1");
+        when(cell2.getValue()).thenReturn("C2");
+        when(cell3.getValue()).thenReturn("C3");
+        when(cell4.getValue()).thenReturn("C4");
+        when(cell5.getValue()).thenReturn("C5");
 
         cells = Arrays.asList(cell1, cell2, cell3, cell4, cell5);
+        eRow = new ExcelRow(cells);
     }
 
     @Test
     public void getSimpleIdTest() {
-        ERow eRow = new ExcelRow(cells);
+
         int index = 1;
-        Assert.assertEquals("E2", eRow.getId(index));
+        Assert.assertEquals("C2", eRow.getKey(index));
     }
 
     @Test
     public void getCompositeIdTest() {
-        ERow eRow = new ExcelRow(cells);
         Integer[] idColumns = {0, 1, 2};
-        Assert.assertEquals("E1/E2/E3", eRow.getId(idColumns));
+        Assert.assertEquals("C1/C2/C3", eRow.getKey(idColumns));
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void ThrowArrayIndexExceptionWithNegativeIndexTest() {
-        ERow eRow = new ExcelRow(cells);
+    @Test
+    public void getKeyThrowOutOfBoundsExceptionWithNegativeIndexTest() {
+        exceptionRule.expect(ArrayIndexOutOfBoundsException.class);
         Integer[] idColumns = {0, 1, -1};
-        eRow.getId(idColumns);
+        eRow.getKey(idColumns);
+    }
+
+    @Test
+    public void getKeyThrowArrayOutOfBoundsExceptionWithBiggerIndexTest() {
+        exceptionRule.expect(ArrayIndexOutOfBoundsException.class);
+        Integer[] idColumns = {0, 1, cells.size()};
+        eRow.getKey(idColumns);
+    }
+
+
+    @Test
+    public void getCellWithinBoundsTest() {
+        Assert.assertNotNull(eRow.getCell(1));
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void ThrowArrayIndexExceptionWithIndexBiggerThanSizeOfListTest() {
-        ERow eRow = new ExcelRow(cells);
-        Integer[] idColumns = {0, 1, cells.size()};
-        eRow.getId(idColumns);
+    public void getCellOutsideBoundsTest() {
+        eRow.getCell(cells.size());
     }
+
+    @Test
+    public void updateExistingCellValueWithDifferentValueTest() {
+        int testIndex = 1;
+        ECell cell = cells.get(testIndex);
+        String oldValue = cell.getValue();
+        when(cell.updateValue("DiffValue"))
+                .thenReturn(oldValue);
+        boolean isUpdated = eRow.updateCellValue(testIndex, "DiffValue");
+        Assert.assertTrue(isUpdated);
+    }
+
+    @Test
+    public void updateExistingCellValueWithTheSameValueTest() {
+        int testIndex = 1;
+        ECell cell = cells.get(testIndex);
+        String oldValue = cell.getValue();
+        when(cell.updateValue(oldValue))
+                .thenReturn(null);
+        boolean isUpdated = eRow.updateCellValue(testIndex, "DiffValue");
+        Assert.assertFalse(isUpdated);
+    }
+
+
+    @Test
+    public void updateCellValueThrowOutOfBoundsExceptionTest() {
+        exceptionRule.expect(ArrayIndexOutOfBoundsException.class);
+        eRow.updateCellValue(cells.size(), "DiffValue");
+
+    }
+
+    @Test
+    public void equalsRowsTest() {
+        ERow row1 = new ExcelRow(cells);
+        ERow row2 = new ExcelRow(cells);
+
+        Assert.assertEquals(row1, row2);
+    }
+
+    @Test
+    public void notEqualsRowsTest() {
+        ERow row1 = new ExcelRow(cells);
+        ERow row2 = new ExcelRow(cells.subList(0, cells.size() - 1));
+        Assert.assertNotEquals(row1, row2);
+    }
+
+    @Test
+    public void diffRowsObjectWithSameContentTest() {
+        ERow row1 = new ExcelRow(cells);
+        ERow row2 = new ExcelRow(cells);
+        Assert.assertTrue(row1.equals(row2) && row2.equals(row1));
+    }
+
+
 }

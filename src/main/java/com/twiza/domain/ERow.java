@@ -8,8 +8,25 @@ public interface ERow {
 
     List<ECell> getCells();
 
-    String getId(Integer[] idColumns);
+    ECell getCell(int position);
 
+    String getKey(Integer[] idColumns) throws ArrayIndexOutOfBoundsException;
+
+    String getKey(int index) throws ArrayIndexOutOfBoundsException;
+
+    int getSize();
+    boolean containsCells();
 
     void setStatus(Status newStatus);
+
+
+    ECell removeCell(int position);
+
+    boolean addCell(ECell cell);
+
+    void addCell(int position, ECell cell);
+
+
+    boolean updateCellValue(int position, String newValue);
+
 }
