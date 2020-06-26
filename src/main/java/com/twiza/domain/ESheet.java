@@ -36,13 +36,28 @@ public interface ESheet {
 
     ERow getHeaders();
 
+    int getColumnsNumber();
+
     Integer[] getKeyColumns();
 
     void setKeyColumns(Integer[] idColumns);
 
+    /**
+     * assign headers to the sheet,
+     * and update ColumnsNumber in case it was 0.
+     *
+     * @param headers the headers to assign to the sheet.
+     * @return false if headers are null, otherwise true,
+     * (only if the size is not different than the other columns)
+     * @throws UnsupportedOperationException, if the size of headers is different
+     *                                        than the size of the already insertedRows
+     */
+    boolean assignHeaders(ERow headers) throws UnsupportedOperationException;
+
     boolean addRow(ERow row) throws UnsupportedOperationException;
 
     boolean removeRow(ERow row);
+
 
     boolean addColumn(int position);
 

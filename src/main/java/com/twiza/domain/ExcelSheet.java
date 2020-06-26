@@ -11,6 +11,7 @@ public class ExcelSheet implements ESheet {
 
     private final static String DELETING_KEY_COLUMN_EXCEPTION_MESSAGE = "You cannot delete a column, that compose the key please change keyColumns first. position is: ";
     private final static String DIFFERENT_ROWS_WITH_SAME_KEY_EXCEPTION_MESSAGE = "This key is already inserted with a different Row";
+    private final static String HEADERS_INCORRECT_SIZE_EXCEPTION_MESSAGE = "Headers size is different than inserted rows size";
     /**
      * used as default value for key creation,
      * it considers that the first column is the key's column.
@@ -36,9 +37,9 @@ public class ExcelSheet implements ESheet {
      */
     private ERow headers;
 
-    private List<ERow> rows;
+    private final List<ERow> rows;
 
-    Map<String, ERow> uniqueRows;
+    private final Map<String, ERow> uniqueRows;
 
     private Integer[] keyColumns;
 
@@ -55,11 +56,14 @@ public class ExcelSheet implements ESheet {
     }
 
     /**
-     * @param name
-     * @param headers
-     * @param rows
-     * @param keyColumns
-     * @throws UnsupportedOperationException
+     * @param name       the name of the sheet.
+     * @param headers    headers of the sheet if exist, otherwise null.
+     * @param rows       the rows that constitute the sheet, except the headers
+     * @param keyColumns the position of columns that contains key's elements.
+     * @throws UnsupportedOperationException if rows have different sizes,
+     *                                       or 2 rows have the same key with different contents
+     *                                       <code>row1.getKey()==row2.getKey()
+     *                                       && row1.equals(row2)==false</code>
      */
     public ExcelSheet(String name, ERow headers, List<ERow> rows, Integer[] keyColumns) throws UnsupportedOperationException {
         this.name = name;
@@ -72,9 +76,9 @@ public class ExcelSheet implements ESheet {
     }
 
     private int assignColumnsNumber() {
-        if (headers != null && headers.containsCells()) {
+        if (headers != null) {
             return headers.getSize();
-        } else if (rows.get(0).containsCells()) {
+        } else if (!rows.isEmpty()) {
             return rows.get(0).getSize();
         }
         return 0;
@@ -102,18 +106,20 @@ public class ExcelSheet implements ESheet {
 
     private Map<String, ERow> generateUniqueRows(List<ERow> rowsList) throws UnsupportedOperationException {
         final Map<String, ERow> tempUniqueKeys = new HashMap<>();
-        rowsList.forEach(row -> {
-            addRowToUniqueRows(row, tempUniqueKeys);
-        });
+        rowsList.forEach(row -> addRowToUniqueRows(row, tempUniqueKeys));
         return tempUniqueKeys;
     }
 
     private void addRowToUniqueRows(ERow row, Map<String, ERow> map) throws UnsupportedOperationException {
+        if (row == null) {
+            return;
+        }
         if (row.getSize() != columnsNumber) {
             throw new UnsupportedOperationException("The row: " + row.getKey(keyColumns)
-                                                            + "has a size of: " + row.getSize() + ", less than columns number" +
+                                                            + " has a size of: " + row.getSize() + ", different than columns number " +
                                                             columnsNumber);
         }
+
         ERow rowInMap = map.get(getRowKey(row));
         if (rowInMap != null && !rowInMap.equals(row)) {
             throw new UnsupportedOperationException(DIFFERENT_ROWS_WITH_SAME_KEY_EXCEPTION_MESSAGE);
@@ -122,7 +128,7 @@ public class ExcelSheet implements ESheet {
         }
     }
 
-    private String getRowKey(ERow row) {
+    private String getRowKey(ERow row) throws UnsupportedOperationException {
         return row.getKey(keyColumns);
     }
 
@@ -131,17 +137,41 @@ public class ExcelSheet implements ESheet {
         return headers;
     }
 
+    @Override
+    public int getColumnsNumber() {
+        return columnsNumber;
+    }
+
 
     @Override
     public Integer[] getKeyColumns() {
         return keyColumns;
     }
 
+    //TODO: in case the assignment fails put back the old KeyColumns
+    // so it can recover again.
     @Override
     public void setKeyColumns(Integer[] keyColumns) {
         this.keyColumns = keyColumns;
         uniqueRows.clear();
-        uniqueRows.putAll(generateUniqueRows(rows));
+        Map<String, ERow> tempUniqueRows = generateUniqueRows(rows);
+        uniqueRows.putAll(tempUniqueRows);
+    }
+
+    @Override
+    public boolean assignHeaders(ERow headers) throws UnsupportedOperationException {
+        if (headers == null) {
+            return false;
+        }
+        if (columnsNumber != 0 && columnsNumber != headers.getSize()) {
+            throw new UnsupportedOperationException(HEADERS_INCORRECT_SIZE_EXCEPTION_MESSAGE);
+        }
+        this.headers = headers;
+        if (columnsNumber == 0) {
+            columnsNumber = assignColumnsNumber();
+        }
+
+        return true;
     }
 
     @Override
@@ -151,16 +181,21 @@ public class ExcelSheet implements ESheet {
 
     @Override
     public boolean addRow(ERow row) throws UnsupportedOperationException {
-        if (columnsNumber == 0) {
-            columnsNumber = row.getSize();
+        rows.add(row);
+        if (headers == null && rows.size() < 2) {
+            columnsNumber = assignColumnsNumber();
         }
         addRowToUniqueRows(row, uniqueRows);
-        return rows.add(row);
+        return true;
     }
 
     @Override
     public boolean removeRow(ERow row) {
-        return rows.remove(row);
+        boolean rowIsRemoved = rows.remove(row);
+        if (headers == null && rows.isEmpty()) {
+            columnsNumber = assignColumnsNumber();
+        }
+        return rowIsRemoved;
     }
 
     @Override
@@ -174,19 +209,26 @@ public class ExcelSheet implements ESheet {
     }
 
     @Override
-    public boolean removeColumn(int position) throws
-            ArrayIndexOutOfBoundsException, UnsupportedOperationException {
+    public boolean removeColumn(int position) throws UnsupportedOperationException {
         if (position >= rows.get(0).getSize()) {
-            throw new ArrayIndexOutOfBoundsException("Cant remove cell from position (" + position + ") bigger then the size of ERow");
+            return false;
         }
-        for (Integer keyColumn : keyColumns) {
+        for (int keyColumn : keyColumns) {
             if (position == keyColumn) {
                 throw new UnsupportedOperationException(DELETING_KEY_COLUMN_EXCEPTION_MESSAGE + position);
             }
         }
+        headers.removeCell(position);
         rows.forEach(row -> row.removeCell(position));
-        columnsNumber--;
-        return false;
+        columnsNumber = assignColumnsNumber();
+        return true;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(headers.toString()).append("\n");
+        uniqueRows.values().forEach(row -> builder.append(row.toString()).append("\n"));
+        return builder.toString();
+    }
 }

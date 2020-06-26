@@ -4,9 +4,11 @@ package com.twiza.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExcelRow implements ERow {
+
+
+    private static final String EMPTY_KEY_EXCEPTION_MESSAGE = "Key Cannot be empty";
     /**
      * Default status of the instance,
      * in case it wasn't provided during construction.
@@ -58,6 +60,7 @@ public class ExcelRow implements ERow {
         return cells.get(position);
     }
 
+
     /**
      * retrieve ERow id, by concatenating a list of columns,
      * separated by a special character<>'/'</>
@@ -65,6 +68,7 @@ public class ExcelRow implements ERow {
      *
      * @param idColumns an array of cells indexes,
      * @return a composite, unique id of the row, the columns are separated b
+     * @throws ArrayIndexOutOfBoundsException
      */
     @Override
     public String getKey(Integer[] idColumns) throws ArrayIndexOutOfBoundsException {
@@ -78,6 +82,9 @@ public class ExcelRow implements ERow {
             }
         }
         key = idBuilder.toString();
+        if (key.isBlank()) {
+            throw new UnsupportedOperationException(EMPTY_KEY_EXCEPTION_MESSAGE);
+        }
         return key;
     }
 
@@ -144,20 +151,27 @@ public class ExcelRow implements ERow {
     }
 
     @Override
+    public boolean equals(ERow obj) {
+        return equals((Object) obj);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
         if (obj instanceof ERow) {
-            return ((ERow) obj).toString().equals(toString());
+            return ((ERow) obj).getCells().equals(getCells());
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return cells.stream()
-                    .map(ECell::getValue)
-                    .collect(Collectors.joining());
+        StringBuilder builder = new StringBuilder();
+        cells.stream()
+             .map(ECell::getValue)
+             .forEach(value -> builder.append(value).append("\t"));
+        return builder.toString();
     }
 }

@@ -1,7 +1,7 @@
 package com.twiza.data;
 
-public  interface Reader<V, T> {
+public interface Reader<V, T> {
 
-     T read(V v) ;
+    T read(V v);
 
 }

@@ -10,11 +10,13 @@ public interface ERow {
 
     ECell getCell(int position);
 
-    String getKey(Integer[] idColumns) throws ArrayIndexOutOfBoundsException;
+    String getKey(Integer[] idColumns) throws ArrayIndexOutOfBoundsException,
+                                                      UnsupportedOperationException;
 
     String getKey(int index) throws ArrayIndexOutOfBoundsException;
 
     int getSize();
+
     boolean containsCells();
 
     void setStatus(Status newStatus);
@@ -29,4 +31,5 @@ public interface ERow {
 
     boolean updateCellValue(int position, String newValue);
 
+    boolean equals(ERow object);
 }

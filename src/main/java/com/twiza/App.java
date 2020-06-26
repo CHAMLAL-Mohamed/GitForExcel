@@ -3,8 +3,14 @@
  */
 package com.twiza;
 
-import com.twiza.excel.*;
+import com.twiza.data.WorkbookReader;
+import com.twiza.domain.EWorkbook;
+import com.twiza.excel.EBuilder;
+import com.twiza.excel.ESheet;
 import com.twiza.utils.ResourceHelper;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +27,17 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
+        File myExcelFile = ResourceHelper.getResourceFile(PATH2);
+        Workbook workbook = new XSSFWorkbook(myExcelFile.getAbsolutePath());
+        DataFormatter dataFormatter = new DataFormatter();
+        EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
+
+        System.out.println(eWorkbook.toString());
         //TODO(1): read Templates. (Singleton)
-        builder = ExcelBuilder.getInstance();
-        File myExcelFile = ResourceHelper.getResourceFile(PATH1);
-        ExcelFileParams excelFileParams = builder.buildExcelFileParams(myExcelFile.getAbsolutePath());
-        ExcelFile excelFile1 = new ExcelFile(excelFileParams);
+//        builder = ExcelBuilder.getInstance();
+//        File myExcelFile = ResourceHelper.getResourceFile(PATH1);
+//        ExcelFileParams excelFileParams = builder.buildExcelFileParams(myExcelFile.getAbsolutePath());
+//        ExcelFile excelFile1 = new ExcelFile(excelFileParams);
         // ExcelFile excelFile2 = new ExcelFile(builder.buildExcelFileParams(ResourceHelper.getResourceFile(PATH2).getAbsolutePath()));
 
 
@@ -38,16 +50,16 @@ public class App {
 //            e.printStackTrace();
 //        }
 
-        try {
-
-            ESheet eSheet = excelFile1.getESheet(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
-            System.out.println("-----------------------Print Sheet1--------------------------");
-            printEsheet(eSheet);
-        } catch (NullPointerException var5) {
-            System.out.println(" the ExcelFile doesn't contain this sheet");
-        } catch (IllegalArgumentException var6) {
-            System.out.println("No sheet at that Index");
-        }
+//        try {
+//
+//            ESheet eSheet = excelFile1.getESheet(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
+//            System.out.println("-----------------------Print Sheet1--------------------------");
+//            printEsheet(eSheet);
+//        } catch (NullPointerException var5) {
+//            System.out.println(" the ExcelFile doesn't contain this sheet");
+//        } catch (IllegalArgumentException var6) {
+//            System.out.println("No sheet at that Index");
+//        }
 
     }
 

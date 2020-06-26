@@ -2,11 +2,11 @@ package com.twiza.data;
 
 import com.twiza.domain.ECell;
 import com.twiza.domain.ExcelCell;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Workbook;
 
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class CellReader implements Reader<Cell, ECell> {
@@ -14,7 +14,7 @@ public class CellReader implements Reader<Cell, ECell> {
      * a Map to store  {@link FormulaEvaluator} for each Workbook,
      * this is used to avoid creating a FormulaEvaluator for each Cell.
      */
-    private static Map<Workbook, FormulaEvaluator> formulaEvaluators;
+    private static FormulaEvaluator formulaEvaluator;
     /**
      * an Instance of dataFormatter to be used in formatting all Cells.
      */
@@ -35,10 +35,10 @@ public class CellReader implements Reader<Cell, ECell> {
         if (INSTANCE == null) {
             INSTANCE = new CellReader();
             dataFormatterInstance = dataFormatter;
-            formulaEvaluators = new HashMap<>();
         }
         return INSTANCE;
     }
+
 
 
     /**
@@ -52,12 +52,22 @@ public class CellReader implements Reader<Cell, ECell> {
         Objects.requireNonNull(cell);
         Workbook workbook = cell.getSheet().getWorkbook();
         //Insert to the map in case the workbook is new.
-        formulaEvaluators.computeIfAbsent(workbook, key -> key.getCreationHelper().createFormulaEvaluator());
-        FormulaEvaluator evaluator = formulaEvaluators.get(workbook);
+        if (formulaEvaluator == null) {
+            formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+        }
         //evaluate the cell value.
-        evaluator.evaluate(cell);
-        String value = dataFormatterInstance.formatCellValue(cell, evaluator);
+        formulaEvaluator.evaluate(cell);
+        String value = dataFormatterInstance.formatCellValue(cell, formulaEvaluator);
         return new ExcelCell(value);
+    }
+    /**
+     * this function should be called before closing the {@link Workbook}
+     * to release {@link FormulaEvaluator} in order to be able to close Workbook
+     * and allow GC to collect it, failing to call this for each Workbook
+     * can cause serious issues, with your cellsValues and memory optimization.
+     */
+    public static void releaseResources() {
+        formulaEvaluator = null;
     }
 
 }
