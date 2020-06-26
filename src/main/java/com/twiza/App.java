@@ -10,7 +10,7 @@ import com.twiza.excel.ESheet;
 import com.twiza.utils.ResourceHelper;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,15 +24,20 @@ public class App {
     public static String PATH1 = "test1.xlsx";
     public static String PATH2 = "test2.xlsx";
     public static String diffPath = "diffResult.xlsx";
+    public static String ecrFile = "C:\\Users\\mohamed.chamlal\\Desktop\\Improvement\\ecrExample.xlsx";
 
     public static void main(String[] args) throws IOException {
 
-        File myExcelFile = ResourceHelper.getResourceFile(PATH2);
-        Workbook workbook = new XSSFWorkbook(myExcelFile.getAbsolutePath());
+        File myExcelFile = ResourceHelper.getResourceFile(ecrFile);
+        //InputStream myExcelFile = new FileInputStream(ecrFile);
+
         DataFormatter dataFormatter = new DataFormatter();
+        Workbook workbook = WorkbookFactory.create(myExcelFile);
         EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
 
         System.out.println(eWorkbook.toString());
+
+
         //TODO(1): read Templates. (Singleton)
 //        builder = ExcelBuilder.getInstance();
 //        File myExcelFile = ResourceHelper.getResourceFile(PATH1);
@@ -41,7 +46,6 @@ public class App {
         // ExcelFile excelFile2 = new ExcelFile(builder.buildExcelFileParams(ResourceHelper.getResourceFile(PATH2).getAbsolutePath()));
 
 
-//
 //        try (Workbook diffWorkbook = new XSSFWorkbook()) {
 //            excelFile2.compare(excelFile1).writeToExcel(diffWorkbook);
 //            FileOutputStream outputStream = new FileOutputStream(diffPath);
