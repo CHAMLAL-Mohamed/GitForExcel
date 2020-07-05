@@ -76,8 +76,9 @@ public class ERowTests {
         Assert.assertNotNull(eRow.getCell(1));
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test
     public void getCellOutsideBoundsTest() {
+        exceptionRule.expect(ArrayIndexOutOfBoundsException.class);
         eRow.getCell(cells.size());
     }
 

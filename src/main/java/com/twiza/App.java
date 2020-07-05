@@ -21,6 +21,7 @@ public class App {
     static int[] indexes = new int[]{0};
     static EBuilder builder;
 
+    public static String APP_PATH = "C:\\Users\\mohamed.chamlal\\.gitforexcel";
     public static String PATH1 = "test1.xlsx";
     public static String PATH2 = "test2.xlsx";
     public static String diffPath = "diffResult.xlsx";
@@ -28,13 +29,13 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
-        File myExcelFile = ResourceHelper.getResourceFile(ecrFile);
+        File myExcelFile = ResourceHelper.getResourceFile(PATH2);
         //InputStream myExcelFile = new FileInputStream(ecrFile);
 
         DataFormatter dataFormatter = new DataFormatter();
         Workbook workbook = WorkbookFactory.create(myExcelFile);
         EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
-
+        workbook.close();
         System.out.println(eWorkbook.toString());
 
 
