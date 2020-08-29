@@ -7,13 +7,13 @@ import com.twiza.data.WorkbookReader;
 import com.twiza.domain.EWorkbook;
 import com.twiza.excel.EBuilder;
 import com.twiza.excel.ESheet;
-import com.twiza.utils.ResourceHelper;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class App {
 
@@ -25,15 +25,17 @@ public class App {
     public static String PATH1 = "test1.xlsx";
     public static String PATH2 = "test2.xlsx";
     public static String diffPath = "diffResult.xlsx";
-    public static String ecrFile = "C:\\Users\\mohamed.chamlal\\Desktop\\Improvement\\ecrExample.xlsx";
+    public static String ecrFile = "C:\\Users\\mohamed.chamlal\\Desktop\\DPE\\PlausibilityUpdate&PTA\\BODY-P5\\" +
+                                           "testFile.xlsx";
 
     public static void main(String[] args) throws IOException {
 
-        File myExcelFile = ResourceHelper.getResourceFile(PATH2);
-        //InputStream myExcelFile = new FileInputStream(ecrFile);
+        //File myExcelFile = ResourceHelper.getResourceFile(PATH2);
+        InputStream myExcelFile = new FileInputStream(ecrFile);
 
         DataFormatter dataFormatter = new DataFormatter();
-        Workbook workbook = WorkbookFactory.create(myExcelFile);
+        //Workbook workbook = WorkbookFactory.create(myExcelFile);
+        Workbook workbook = new XSSFWorkbook(ecrFile);
         EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
         workbook.close();
         System.out.println(eWorkbook.toString());
