@@ -3,17 +3,12 @@
  */
 package com.twiza;
 
-import com.twiza.data.WorkbookReader;
-import com.twiza.domain.EWorkbook;
+import com.twiza.domain.ECell;
+import com.twiza.domain.ExcelCell;
 import com.twiza.excel.EBuilder;
 import com.twiza.excel.ESheet;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class App {
 
@@ -29,44 +24,16 @@ public class App {
                                            "testFile.xlsx";
 
     public static void main(String[] args) throws IOException {
-
-        //File myExcelFile = ResourceHelper.getResourceFile(PATH2);
-        InputStream myExcelFile = new FileInputStream(ecrFile);
-
-        DataFormatter dataFormatter = new DataFormatter();
-        //Workbook workbook = WorkbookFactory.create(myExcelFile);
-        Workbook workbook = new XSSFWorkbook(ecrFile);
-        EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
-        workbook.close();
-        System.out.println(eWorkbook.toString());
+//        DataFormatter dataFormatter = new DataFormatter();
+//        Workbook workbook = WorkbookFactory.create(new File(ecrFile));
+//        EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
+//        workbook.close();
+//        System.out.println(eWorkbook.toString());
+        ECell cell = new ExcelCell("Cell");
+        System.out.println(cell);
 
 
         //TODO(1): read Templates. (Singleton)
-//        builder = ExcelBuilder.getInstance();
-//        File myExcelFile = ResourceHelper.getResourceFile(PATH1);
-//        ExcelFileParams excelFileParams = builder.buildExcelFileParams(myExcelFile.getAbsolutePath());
-//        ExcelFile excelFile1 = new ExcelFile(excelFileParams);
-        // ExcelFile excelFile2 = new ExcelFile(builder.buildExcelFileParams(ResourceHelper.getResourceFile(PATH2).getAbsolutePath()));
-
-
-//        try (Workbook diffWorkbook = new XSSFWorkbook()) {
-//            excelFile2.compare(excelFile1).writeToExcel(diffWorkbook);
-//            FileOutputStream outputStream = new FileOutputStream(diffPath);
-//            diffWorkbook.write(outputStream);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-//        try {
-//
-//            ESheet eSheet = excelFile1.getESheet(excelFile1.getExcelFileParams().getWorkbook().getSheetName(0));
-//            System.out.println("-----------------------Print Sheet1--------------------------");
-//            printEsheet(eSheet);
-//        } catch (NullPointerException var5) {
-//            System.out.println(" the ExcelFile doesn't contain this sheet");
-//        } catch (IllegalArgumentException var6) {
-//            System.out.println("No sheet at that Index");
-//        }
 
     }
 

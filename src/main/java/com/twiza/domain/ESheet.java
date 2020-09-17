@@ -65,4 +65,8 @@ public interface ESheet {
 
     boolean removeColumn(int position) throws ArrayIndexOutOfBoundsException;
 
+    boolean equals(Object o);
+
+    int hashCode();
+
 }

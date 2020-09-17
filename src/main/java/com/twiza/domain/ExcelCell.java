@@ -1,68 +1,159 @@
 package com.twiza.domain;
 
+import com.twiza.exceptions.UnsupportedStatusChangeException;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class ExcelCell implements ECell {
+    /**
+     * Default initial {@code Status}.
+     */
     private static final Status DEFAULT_STATUS = Status.NEW;
-
-
+    /**
+     * Date and time format to be used in {@code changeHistory}
+     */
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * the value of the cell
+     */
     private String value;
-    private String oldValue;
+    /**
+     * The changeHistory of this cell(contains the oldValue, the date&time of the change, and the modifier user).
+     */
+    private final StringBuilder changesHistory;
+    /**
+     * The current status of the cell(check {@link Status}).
+     */
     private Status status;
 
+    /**
+     * Constructs a cell containing a value, and default status.
+     *
+     * @param value the value of the cell
+     * @throws NullPointerException if the value is null
+     */
     public ExcelCell(String value) {
-        this(value, DEFAULT_STATUS);
+        this(value, null, DEFAULT_STATUS);
     }
 
-    public ExcelCell(String value, Status status) {
+    /**
+     * Constructs a cell containing a value, the changes history, and the default status.
+     *
+     * @param value          the value of the cell
+     * @param changesHistory the changes history of this cell
+     * @throws NullPointerException if the {@code value} is null
+     */
+    public ExcelCell(String value, String changesHistory) {
+        this(value, changesHistory, DEFAULT_STATUS);
+    }
+
+    /**
+     * Constructs a cell containing the value, the changes history, and the status of the cell
+     *
+     * @param value          the value of the cell
+     * @param changesHistory the changes history of this cell
+     * @param status         the
+     * @throws NullPointerException if the {@code value} is null
+     */
+    public ExcelCell(String value, String changesHistory, Status status) {
         Objects.requireNonNull(value);
         this.value = value;
-        this.status = status;
+        this.status = status == null ? DEFAULT_STATUS : status;
+        this.changesHistory = new StringBuilder();
+        if (changesHistory != null) {
+            this.changesHistory.append(changesHistory);
+        }
     }
 
-
+    /**
+     * Return the current {@code status } of this cell.
+     *
+     * @return the current {@code status } of this cell
+     */
     @Override
     public Status getStatus() {
         return status;
     }
 
+    /**
+     * Returns the {@code value} of this cell.
+     *
+     * @return the {@code value} of this cell
+     */
     @Override
     public String getValue() {
         return value;
     }
 
+    /**
+     * Returns all the changes made in this cell.
+     *
+     * @return the {@code changeHistory} of this cell
+     */
     @Override
-    public String getOldValue() {
+    public String getChangesHistory() {
+        return changesHistory.toString();
+
+    }
+
+
+    /**
+     * Update the value of this cell if it is applicable, and return oldValue.
+     * Otherwise returns {@code null}.
+     *
+     * @param newValue the cell's new value, {@code null} values are not considered
+     * @return the old value of this cell if it was updated, {@code null} if not
+     */
+    @Override
+    public String updateValue(String newValue) {
+        if (newValue == null || getValue().equals(newValue)) {
+            return null;
+        }
+        String oldValue = value;
+        setValue(newValue);
+        setStatus(Status.CHANGED);
+        UpdateChangesHistory(oldValue);
         return oldValue;
     }
 
+    private void setValue(String newValue) {
+        Objects.requireNonNull(newValue);
+        this.value = newValue;
+    }
+
+    /**
+     * Set the {@code status} of this cell if it is possible,
+     * throw {@link UnsupportedStatusChangeException}exception otherwise.
+     *
+     * @param newStatus the new Status of the cell.
+     * @throws UnsupportedStatusChangeException if the new status cannot be applicable.
+     */
     @Override
     public void setStatus(Status newStatus) {
+        if ((status.equals(Status.ADDED)
+                     || status == Status.CHANGED
+                     || status == Status.DELETED) && newStatus == Status.NEW) {
+            throw new UnsupportedStatusChangeException(status.toString());
+        }
         this.status = newStatus;
     }
 
-    @Override
-    public void setValue(String value) {
-        this.value = value;
+    /**
+     * Update the changes history of this cell by adding a new line that contains
+     * the time& date of change, the old value of this cell, and the user who made the changes.
+     *
+     * @param oldValue the old value of this cell
+     */
+    private void UpdateChangesHistory(String oldValue) {
+        this.changesHistory.append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                           .append("\t")
+                           .append("User")
+                           .append("\t")
+                           .append(oldValue);
     }
 
-    @Override
-    public void setOldValue(String oldValue) {
-        this.oldValue = oldValue;
-    }
-
-
-    @Override
-    public String updateValue(String newValue) {
-        Objects.requireNonNull(newValue);
-        if (getValue().equals(newValue)) {
-            return null;
-        }
-        setStatus(Status.CHANGED);
-        setOldValue(value);
-        setValue(newValue);
-        return getOldValue();
-    }
 
     @Override
     public int hashCode() {

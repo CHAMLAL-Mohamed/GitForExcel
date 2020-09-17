@@ -8,18 +8,11 @@ public class ECellTests {
     String expectedValue = "expectedValue";
     String oldValue = "oldValue";
 
+
     @Test(expected = NullPointerException.class)
-    public void throwNullExceptionDuringConstructionTest() {
+    public void constructionWithNullValueTest() {
         ECell cell = new ExcelCell(null);
     }
-
-
-    @Test
-    public void getValueIsNotNullTest() {
-        ECell cell = new ExcelCell(expectedValue);
-        Assert.assertEquals(expectedValue, cell.getValue());
-    }
-
 
     @Test(expected = NullPointerException.class)
     public void updateValueWithNullValueTest() {
@@ -43,8 +36,8 @@ public class ECellTests {
 
     @Test
     public void updateValueReturnOldValueTest() {
-        ECell cell = new ExcelCell(oldValue);
-        Assert.assertEquals(oldValue, cell.updateValue("anyValue"));
+        ECell cell = new ExcelCell(expectedValue);
+        Assert.assertEquals(expectedValue, cell.updateValue("anyValue"));
     }
 
 
@@ -53,6 +46,13 @@ public class ECellTests {
         ECell cell = new ExcelCell(oldValue);
         cell.updateValue(expectedValue);
         Assert.assertEquals(Status.CHANGED, cell.getStatus());
+    }
+
+    @Test
+    public void updateValueChangeHistoryTest() {
+        ECell cell = new ExcelCell(expectedValue);
+        cell.updateValue("AnyValue");
+        Assert.assertTrue(cell.getChangesHistory().contains(expectedValue));
     }
 
 

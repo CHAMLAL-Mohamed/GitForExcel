@@ -39,7 +39,7 @@ public class ExcelRow implements ERow {
         this(cells, DEFAULT_STATUS);
     }
 
-    public ExcelRow(List<ECell> cells, Status status) {
+    private ExcelRow(List<ECell> cells, Status status) {
         this.cells = cells;
         this.status = status;
     }
@@ -66,17 +66,17 @@ public class ExcelRow implements ERow {
      * separated by a special character<>'/'</>
      * based on the indexes supplied.
      *
-     * @param idColumns an array of cells indexes,
+     * @param keyColumnsPosition an array of cells indexes,
      * @return a composite, unique id of the row, the columns are separated b
      * @throws ArrayIndexOutOfBoundsException
      */
-    @Override
-    public String getKey(Integer[] idColumns) throws ArrayIndexOutOfBoundsException {
-        StringBuilder idBuilder = new StringBuilder();
-        int idColumnsLength = idColumns.length;
-        for (int i = 0; i < idColumnsLength; i++) {
 
-            idBuilder.append(getKey(idColumns[i]));
+    @Override
+    public String getKey(Integer... keyColumnsPosition) {
+        StringBuilder idBuilder = new StringBuilder();
+        int idColumnsLength = keyColumnsPosition.length;
+        for (int i = 0; i < idColumnsLength; i++) {
+            idBuilder.append(getKey(keyColumnsPosition[i]));
             if (i < idColumnsLength - 1) {
                 idBuilder.append(ID_SEPARATOR);
             }
@@ -97,7 +97,7 @@ public class ExcelRow implements ERow {
      *                                        or bigger than the cells List size.
      */
 
-    public String getKey(int index) throws ArrayIndexOutOfBoundsException {
+    private String getKey(int index) throws ArrayIndexOutOfBoundsException {
         return cells.get(index).getValue();
     }
 
@@ -106,10 +106,6 @@ public class ExcelRow implements ERow {
         return cells.size();
     }
 
-    @Override
-    public boolean containsCells() {
-        return !cells.isEmpty();
-    }
 
     /**
      * set the new stat of the {@link ExcelRow}
@@ -125,6 +121,11 @@ public class ExcelRow implements ERow {
     @Override
     public ECell removeCell(int position) {
         return cells.remove(position);
+    }
+
+    @Override
+    public ECell removeCell(ECell cell) {
+        return null;
     }
 
     @Override
@@ -146,14 +147,15 @@ public class ExcelRow implements ERow {
     }
 
     @Override
+    public boolean updateCellValue(ECell cell, String newValue) {
+        return false;
+    }
+
+    @Override
     public int hashCode() {
         return toString().hashCode();
     }
 
-    @Override
-    public boolean equals(ERow obj) {
-        return equals((Object) obj);
-    }
 
     @Override
     public boolean equals(Object obj) {

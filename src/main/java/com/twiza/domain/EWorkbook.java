@@ -24,5 +24,9 @@ public interface EWorkbook {
 
     boolean removeSheet(String sheetName);
 
+    boolean equals(Object o);
+
+    int hashCode();
+
 
 }
