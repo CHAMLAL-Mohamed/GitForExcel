@@ -32,9 +32,6 @@ public class App {
         ECell cell = new ExcelCell("Cell");
         System.out.println(cell);
 
-
-        //TODO(1): read Templates. (Singleton)
-
     }
 
     private static void printEsheet(ESheet eSheet) {

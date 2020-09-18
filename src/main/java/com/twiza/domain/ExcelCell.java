@@ -2,6 +2,7 @@ package com.twiza.domain;
 
 import com.twiza.exceptions.UnsupportedStatusChangeException;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -35,18 +36,7 @@ public class ExcelCell implements ECell {
      * @throws NullPointerException if the value is null
      */
     public ExcelCell(String value) {
-        this(value, null, DEFAULT_STATUS);
-    }
-
-    /**
-     * Constructs a cell containing a value, the changes history, and the default status.
-     *
-     * @param value          the value of the cell
-     * @param changesHistory the changes history of this cell
-     * @throws NullPointerException if the {@code value} is null
-     */
-    public ExcelCell(String value, String changesHistory) {
-        this(value, changesHistory, DEFAULT_STATUS);
+        this(value, null);
     }
 
     /**
@@ -54,16 +44,19 @@ public class ExcelCell implements ECell {
      *
      * @param value          the value of the cell
      * @param changesHistory the changes history of this cell
-     * @param status         the
      * @throws NullPointerException if the {@code value} is null
      */
-    public ExcelCell(String value, String changesHistory, Status status) {
+    public ExcelCell(String value, String changesHistory) {
         Objects.requireNonNull(value);
         this.value = value;
-        this.status = status == null ? DEFAULT_STATUS : status;
+        this.status = DEFAULT_STATUS;
         this.changesHistory = new StringBuilder();
         if (changesHistory != null) {
-            this.changesHistory.append(changesHistory);
+            //TODO(1): history should obey to the standard or ignore it:
+            // date&Time+"\t"+"oldValue"+"\t"+user
+            //TODO(2): check the necessity to remove adding initial History during construction
+            // and use a setter.
+            setInitialChangesHistory(changesHistory);
         }
     }
 
@@ -98,6 +91,22 @@ public class ExcelCell implements ECell {
 
     }
 
+    private void setInitialChangesHistory(String initialChangesHistory) {
+        String[] changes = initialChangesHistory.split("\n");
+        for (String change : changes) {
+            String[] elements = change.split("\t");
+            int dateTimeIndex = 0;
+            try {
+                DATE_TIME_FORMATTER.parse(elements[dateTimeIndex]);
+            } catch (DateTimeException e) {
+                return;
+            }
+            if (elements.length < 3) {
+                return;
+            }
+        }
+        this.changesHistory.append(initialChangesHistory);
+    }
 
     /**
      * Update the value of this cell if it is applicable, and return oldValue.
@@ -118,14 +127,13 @@ public class ExcelCell implements ECell {
         return oldValue;
     }
 
-    private void setValue(String newValue) {
-        Objects.requireNonNull(newValue);
-        this.value = newValue;
+    private void setValue(String value) {
+        Objects.requireNonNull(value);
+        this.value = value;
     }
 
     /**
      * Set the {@code status} of this cell if it is possible,
-     * throw {@link UnsupportedStatusChangeException}exception otherwise.
      *
      * @param newStatus the new Status of the cell.
      * @throws UnsupportedStatusChangeException if the new status cannot be applicable.
@@ -149,9 +157,9 @@ public class ExcelCell implements ECell {
     private void UpdateChangesHistory(String oldValue) {
         this.changesHistory.append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                            .append("\t")
+                           .append(oldValue)
                            .append("User")
-                           .append("\t")
-                           .append(oldValue);
+                           .append("\t");
     }
 
 

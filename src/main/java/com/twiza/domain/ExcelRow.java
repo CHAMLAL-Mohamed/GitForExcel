@@ -1,6 +1,8 @@
 package com.twiza.domain;
 
 
+import com.twiza.exceptions.UnsupportedStatusChangeException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,13 +13,8 @@ public class ExcelRow implements ERow {
     private static final String EMPTY_KEY_EXCEPTION_MESSAGE = "Key Cannot be empty";
     /**
      * Default status of the instance,
-     * in case it wasn't provided during construction.
      */
     private final static Status DEFAULT_STATUS = Status.NEW;
-    /**
-     * used to separate key's elements, in case splitting is required.
-     */
-    private final static char ID_SEPARATOR = '/';
 
     /**
      * A List of {@link ECell}, represent a row elements.
@@ -31,30 +28,50 @@ public class ExcelRow implements ERow {
 
     private String key;
 
+    /**
+     * Constructs an empty row
+     */
     public ExcelRow() {
-        this(new ArrayList<>(), DEFAULT_STATUS);
+        this(new ArrayList<>());
     }
 
+    /**
+     * Constructs a row with an initial list of cells.
+     *
+     * @param cells the list of cells that this rows contains
+     */
     public ExcelRow(List<ECell> cells) {
-        this(cells, DEFAULT_STATUS);
-    }
-
-    private ExcelRow(List<ECell> cells, Status status) {
         this.cells = cells;
-        this.status = status;
+        this.status = DEFAULT_STATUS;
     }
 
-
+    /**
+     * Return the current {@code status } of this row.
+     *
+     * @return the current {@code status } of this row
+     */
     @Override
     public Status getStatus() {
         return status;
     }
 
+    /**
+     * Returns an unmodifiable version of cells list to ensure immutability.
+     *
+     * @return unmodifiable list of this row's cells
+     */
     @Override
     public List<ECell> getCells() {
         return Collections.unmodifiableList(cells);
     }
 
+    /**
+     * Returns the cell at the specified position in this row's list.
+     *
+     * @param position position of cell to return
+     * @return the cell at the specified position in this row's list
+     * @throws IndexOutOfBoundsException if the position is out of the cells list range
+     */
     @Override
     public ECell getCell(int position) {
         return cells.get(position);
@@ -62,26 +79,22 @@ public class ExcelRow implements ERow {
 
 
     /**
-     * retrieve ERow id, by concatenating a list of columns,
-     * separated by a special character<>'/'</>
-     * based on the indexes supplied.
+     * build the key of this row based on the position of columns that compose the key.
      *
-     * @param keyColumnsPosition an array of cells indexes,
-     * @return a composite, unique id of the row, the columns are separated b
-     * @throws ArrayIndexOutOfBoundsException
+     * @param keyColumnsPositions the positions of columns  one position if simple key,
+     *                            multiple if composed key
+     * @return a unique key of the row based on columns indexes
+     * @throws IndexOutOfBoundsException     if any of the provided columns's position is out of range
+     * @throws UnsupportedOperationException if the result key is empty or contains only white space,
+     *                                       <code>key.isBlank()</code>
      */
-
     @Override
-    public String getKey(Integer... keyColumnsPosition) {
-        StringBuilder idBuilder = new StringBuilder();
-        int idColumnsLength = keyColumnsPosition.length;
-        for (int i = 0; i < idColumnsLength; i++) {
-            idBuilder.append(getKey(keyColumnsPosition[i]));
-            if (i < idColumnsLength - 1) {
-                idBuilder.append(ID_SEPARATOR);
-            }
+    public String getKey(Integer... keyColumnsPositions) {
+        StringBuilder keyBuilder = new StringBuilder();
+        for (Integer position : keyColumnsPositions) {
+            keyBuilder.append(cells.get(position).getValue());
         }
-        key = idBuilder.toString();
+        key = keyBuilder.toString();
         if (key.isBlank()) {
             throw new UnsupportedOperationException(EMPTY_KEY_EXCEPTION_MESSAGE);
         }
@@ -89,18 +102,10 @@ public class ExcelRow implements ERow {
     }
 
     /**
-     * returns the key from the index provided.
+     * Returns the size of cells list in the row.
      *
-     * @param index of the key.
-     * @return a unique key to be considered as the ID.
-     * @throws ArrayIndexOutOfBoundsException in case the index is negative,
-     *                                        or bigger than the cells List size.
+     * @return the size of cells list.
      */
-
-    private String getKey(int index) throws ArrayIndexOutOfBoundsException {
-        return cells.get(index).getValue();
-    }
-
     @Override
     public int getSize() {
         return cells.size();
@@ -108,52 +113,76 @@ public class ExcelRow implements ERow {
 
 
     /**
-     * set the new stat of the {@link ExcelRow}
+     * set a new Status for this element, if it's applicable
      *
-     * @param newStatus the new stat to be assigned to this instance.
+     * @param newStatus the new Status to be applied to this row
+     * @throws UnsupportedStatusChangeException if the new status cannot be applied
+     *                                          to the row
      */
-
     @Override
     public void setStatus(Status newStatus) {
+        if ((status.equals(Status.ADDED)
+                     || status == Status.CHANGED
+                     || status == Status.DELETED) && newStatus == Status.NEW) {
+            throw new UnsupportedStatusChangeException(status.toString());
+        }
         this.status = newStatus;
     }
 
+    /**
+     * Remove cell from the given position, and returns the deleted cell.
+     *
+     * @param position the position from which to remove the cell
+     * @return the deleted cell, null if no cell was deleted
+     * @throws IndexOutOfBoundsException, if the position is out of the range
+     */
     @Override
     public ECell removeCell(int position) {
         return cells.remove(position);
     }
 
-    @Override
-    public ECell removeCell(ECell cell) {
-        return null;
-    }
-
+    /**
+     * append a {@code ECell} to end of the cells list.
+     *
+     * @param cell the ECell to be added to the end of the cells list.
+     * @return {@code true}
+     * @throws NullPointerException if the {@code ECell} was null.
+     */
     @Override
     public boolean addCell(ECell cell) {
         return cells.add(cell);
     }
 
+    /**
+     * Add the {@code ECell} to the provided position in the List.
+     *
+     * @param position position at which the specified cell to be inserted
+     * @param cell     cell to be inserted
+     * @throws IndexOutOfBoundsException if the position is out of range
+     * @throws NullPointerException      if the {@code ECell} is null.
+     */
     @Override
     public void addCell(int position, ECell cell) {
         cells.add(position, cell);
     }
 
-
+    /**
+     * Replaces the cell at the specified position in this row with the
+     * specified cell
+     *
+     * @param position the position of the cell to replace
+     * @param cell     cell to be stored at the specified position
+     * @return the cell previously at the specified position
+     * @throws IndexOutOfBoundsException if the position is out of range{@inheritDoc}
+     */
     @Override
-    public boolean updateCellValue(int position, String newValue) {
-        return cells.get(position).updateValue(newValue) != null;
-
-
-    }
-
-    @Override
-    public boolean updateCellValue(ECell cell, String newValue) {
-        return false;
+    public ECell replaceCell(int position, ECell cell) {
+        return cells.set(position, cell);
     }
 
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        return cells.hashCode();
     }
 
 

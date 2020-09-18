@@ -42,7 +42,7 @@ public interface ECell {
      * update the {@link Status} of the cell.
      *
      * @param newStatus the new Status of the cell.
-     * @throws UnsupportedStatusChangeException
+     * @throws UnsupportedStatusChangeException if the new status cannot be applicable.
      */
     void setStatus(Status newStatus);
 
