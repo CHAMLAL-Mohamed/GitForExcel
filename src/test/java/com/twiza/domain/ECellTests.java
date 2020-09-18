@@ -20,7 +20,7 @@ public class ECellTests {
      * Test constructors cases
      */
     @Test(expected = NullPointerException.class)
-    public void throwExceptionIfValueIsNull() {
+    public void cellThrowsExceptionIfValueIsNull() {
         new ExcelCell(null);
 
     }
@@ -63,7 +63,7 @@ public class ECellTests {
      */
 
     @Test
-    public void cellValueStatusAndHistoryAreNotUpdatedIfNewValueIsNull() {
+    public void valueStatusAndHistoryAreNotUpdatedIfNewValueIsNull() {
         String value = "value";
         ECell cell = new ExcelCell(value);
         String oldValue = cell.updateValue(null);
@@ -71,7 +71,7 @@ public class ECellTests {
     }
 
     @Test
-    public void cellValueStatusAndHistoryAreNotUpdatedIfNewValueEqualsCurrentValue() {
+    public void valueStatusAndHistoryAreNotUpdatedIfNewValueEqualsCurrentValue() {
         String value = "value";
         ECell cell = new ExcelCell(value);
         String oldValue = cell.updateValue(value);
@@ -79,7 +79,7 @@ public class ECellTests {
     }
 
     @Test
-    public void cellValueStatusAndHistoryAreUpdatedIfNewValueIsDifferentThanCurrentValue() {
+    public void valueStatusAndHistoryAreUpdatedIfNewValueIsDifferentThanCurrentValue() {
         String value = "value";
         String newValue = "newValue";
         ECell cell = new ExcelCell(value);
@@ -93,7 +93,7 @@ public class ECellTests {
      */
 
     @Test
-    public void cellStatusIsChangedIfTheCurrentStatusIsNew() {
+    public void satusIsChangedIfTheCurrentStatusIsNew() {
         ECell cell = new ExcelCell("value");
         cell.setStatus(Status.CHANGED);
         assertThat(cell.getStatus(), is(equalTo(Status.CHANGED)));

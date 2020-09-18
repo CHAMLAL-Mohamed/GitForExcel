@@ -6,6 +6,7 @@ import com.twiza.exceptions.UnsupportedStatusChangeException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ExcelRow implements ERow {
 
@@ -19,14 +20,12 @@ public class ExcelRow implements ERow {
     /**
      * A List of {@link ECell}, represent a row elements.
      */
-    private List<ECell> cells;
+    private final List<ECell> cells;
 
     /**
      * The current status, it equals <>Status.NEW</> by default.
      */
     private Status status;
-
-    private String key;
 
     /**
      * Constructs an empty row
@@ -39,8 +38,10 @@ public class ExcelRow implements ERow {
      * Constructs a row with an initial list of cells.
      *
      * @param cells the list of cells that this rows contains
+     * @throws NullPointerException if the input is null
      */
     public ExcelRow(List<ECell> cells) {
+        Objects.requireNonNull(cells);
         this.cells = cells;
         this.status = DEFAULT_STATUS;
     }
@@ -94,7 +95,7 @@ public class ExcelRow implements ERow {
         for (Integer position : keyColumnsPositions) {
             keyBuilder.append(cells.get(position).getValue());
         }
-        key = keyBuilder.toString();
+        String key = keyBuilder.toString();
         if (key.isBlank()) {
             throw new UnsupportedOperationException(EMPTY_KEY_EXCEPTION_MESSAGE);
         }
@@ -150,6 +151,7 @@ public class ExcelRow implements ERow {
      */
     @Override
     public boolean addCell(ECell cell) {
+        Objects.requireNonNull(cell);
         return cells.add(cell);
     }
 
@@ -163,6 +165,7 @@ public class ExcelRow implements ERow {
      */
     @Override
     public void addCell(int position, ECell cell) {
+        Objects.requireNonNull(cell);
         cells.add(position, cell);
     }
 
@@ -173,10 +176,12 @@ public class ExcelRow implements ERow {
      * @param position the position of the cell to replace
      * @param cell     cell to be stored at the specified position
      * @return the cell previously at the specified position
-     * @throws IndexOutOfBoundsException if the position is out of range{@inheritDoc}
+     * @throws NullPointerException          if the cell is null
+     * @throws IndexOutOfBoundsException     if the position is out of range{@inheritDoc}
      */
     @Override
     public ECell replaceCell(int position, ECell cell) {
+        Objects.requireNonNull(cell);
         return cells.set(position, cell);
     }
 
