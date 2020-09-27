@@ -22,6 +22,12 @@ public interface ERow {
      * @return the list of Cells
      */
     List<ECell> getCells();
+    /**
+     * Get the List of cells values in this row
+     *
+     * @return the list of Cells values
+     */
+    List<String> getCellsValues();
 
     /**
      * Returns the cell at the specified position in this row's list.
@@ -42,7 +48,7 @@ public interface ERow {
      * @throws UnsupportedOperationException if the result key is empty or contains only white space,
      *                                       {@code key.isBlank()=true}
      */
-    String getKey(Integer... keyColumnsPosition);
+    String getKey(int... keyColumnsPosition);
 
     /**
      * Returns the size of cells list in the row.

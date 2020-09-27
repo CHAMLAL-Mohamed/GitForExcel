@@ -1,6 +1,5 @@
 package com.twiza.data;
 
-import com.twiza.domain.ERow;
 import com.twiza.domain.ESheet;
 import com.twiza.domain.ExcelSheet;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -8,6 +7,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.stream.StreamSupport;
 
 public class SheetReader implements Reader<Sheet, ESheet> {
     private static SheetReader INSTANCE;
@@ -32,10 +33,17 @@ public class SheetReader implements Reader<Sheet, ESheet> {
     public ESheet read(Sheet sheet) {
         ESheet eSheet = new ExcelSheet(sheet.getSheetName());
         RowReader reader = RowReader.getInstance(dataFormatterInstance);
+        Iterable<Row> rowsIterable = sheet::rowIterator;
+        int maxCellsNumber = StreamSupport.stream(rowsIterable.spliterator(), false)
+                                          .mapToInt(Row::getLastCellNum)
+                                          .max().orElseThrow(NoSuchElementException::new);
         Iterator<Row> rows = sheet.rowIterator();
-        ERow headers = reader.read(rows.next());
-        eSheet.assignHeaders(headers);
-        rows.forEachRemaining(row -> eSheet.addRow(reader.read(row)));
+        //System.out.println(maxCellsNumber);
+        //System.out.println(sheet.getLastRowNum());
+        rows.forEachRemaining(row -> {
+            //System.out.println("row number " + row.getRowNum() + " is added");
+            eSheet.addRow(reader.read(row, maxCellsNumber));
+        });
         return eSheet;
     }
 

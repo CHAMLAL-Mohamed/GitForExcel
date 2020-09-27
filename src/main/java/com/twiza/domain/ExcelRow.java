@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ExcelRow implements ERow {
 
@@ -65,6 +66,17 @@ public class ExcelRow implements ERow {
     public List<ECell> getCells() {
         return Collections.unmodifiableList(cells);
     }
+    /**
+     * Get the List of cells values in this row
+     *
+     * @return the list of Cells values
+     */
+    @Override
+    public List<String> getCellsValues() {
+        return cells.stream()
+                    .map(ECell::getValue)
+                    .collect(Collectors.toList());
+    }
 
     /**
      * Returns the cell at the specified position in this row's list.
@@ -90,7 +102,7 @@ public class ExcelRow implements ERow {
      *                                       <code>key.isBlank()</code>
      */
     @Override
-    public String getKey(Integer... keyColumnsPositions) {
+    public String getKey( int... keyColumnsPositions) {
         StringBuilder keyBuilder = new StringBuilder();
         for (Integer position : keyColumnsPositions) {
             keyBuilder.append(cells.get(position).getValue());
@@ -176,8 +188,8 @@ public class ExcelRow implements ERow {
      * @param position the position of the cell to replace
      * @param cell     cell to be stored at the specified position
      * @return the cell previously at the specified position
-     * @throws NullPointerException          if the cell is null
-     * @throws IndexOutOfBoundsException     if the position is out of range{@inheritDoc}
+     * @throws NullPointerException      if the cell is null
+     * @throws IndexOutOfBoundsException if the position is out of range{@inheritDoc}
      */
     @Override
     public ECell replaceCell(int position, ECell cell) {

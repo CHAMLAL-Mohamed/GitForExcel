@@ -3,12 +3,10 @@
  */
 package com.twiza;
 
-import com.twiza.domain.ECell;
-import com.twiza.domain.ExcelCell;
-import com.twiza.excel.EBuilder;
-import com.twiza.excel.ESheet;
 
-import java.io.IOException;
+import com.twiza.domain.ESheet;
+import com.twiza.excel.EBuilder;
+import com.twiza.utils.ExcelReader;
 
 public class App {
 
@@ -22,17 +20,30 @@ public class App {
     public static String diffPath = "diffResult.xlsx";
     public static String ecrFile = "C:\\Users\\mohamed.chamlal\\Desktop\\DPE\\PlausibilityUpdate&PTA\\BODY-P5\\" +
                                            "testFile.xlsx";
+    public static String testFile = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
+                                            "plausibilityFile.xlsx";
 
-    public static void main(String[] args) throws IOException {
-//        DataFormatter dataFormatter = new DataFormatter();
-//        Workbook workbook = WorkbookFactory.create(new File(ecrFile));
-//        EWorkbook eWorkbook = WorkbookReader.getInstance(dataFormatter).read(workbook);
-//        workbook.close();
-//        System.out.println(eWorkbook.toString());
-        ECell cell = new ExcelCell("Cell");
-        System.out.println(cell);
+    public static void main(String[] args) {
+        try {
 
+            ESheet sheet = ExcelReader.getInstance()
+                                      .readWorkbook(testFile)
+                                      .getSheet("PLaUsibility")
+                                      .deleteRows(0, 2)
+                                      .deleteColumns(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+                                      .adoptFirstRowAsHeaders()
+                                      .setKeyIndexes(0);
+            System.out.println("--------------------------Print normal data---------------------------");
+            System.out.println(sheet.getHeaders());
+            System.out.println(sheet.getData());
+            System.out.println("--------------------------Print unique data---------------------------");
+            System.out.println(sheet.getHeaders());
+            System.out.println(sheet.getUniqueData());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     private static void printEsheet(ESheet eSheet) {
         System.out.println(eSheet);

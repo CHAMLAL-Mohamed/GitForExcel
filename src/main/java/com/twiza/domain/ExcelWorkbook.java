@@ -22,14 +22,14 @@ public class ExcelWorkbook implements EWorkbook {
     }
 
     private void addSheetToSheetsMap(ESheet sheet, Map<String, ESheet> sheets) {
-        if (sheets.putIfAbsent(sheet.getName(), sheet) != null) {
+        if (sheets.putIfAbsent(sheet.getName().toLowerCase(), sheet) != null) {
             throw new UnsupportedOperationException(SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE);
         }
     }
 
     @Override
     public ESheet getSheet(String name) {
-        return sheets.getOrDefault(name, null);
+        return sheets.getOrDefault(name.toLowerCase(), null);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class ExcelWorkbook implements EWorkbook {
 
     @Override
     public boolean removeSheet(String sheetName) {
-        return !(sheets.remove(sheetName) == null);
+        return !(sheets.remove(sheetName.toLowerCase()) == null);
     }
 
 
