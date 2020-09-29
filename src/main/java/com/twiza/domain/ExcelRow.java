@@ -66,6 +66,7 @@ public class ExcelRow implements ERow {
     public List<ECell> getCells() {
         return Collections.unmodifiableList(cells);
     }
+
     /**
      * Get the List of cells values in this row
      *
@@ -102,7 +103,7 @@ public class ExcelRow implements ERow {
      *                                       <code>key.isBlank()</code>
      */
     @Override
-    public String getKey( int... keyColumnsPositions) {
+    public String getKey(int... keyColumnsPositions) {
         StringBuilder keyBuilder = new StringBuilder();
         for (Integer position : keyColumnsPositions) {
             keyBuilder.append(cells.get(position).getValue());
@@ -150,7 +151,7 @@ public class ExcelRow implements ERow {
      * @throws IndexOutOfBoundsException, if the position is out of the range
      */
     @Override
-    public ECell removeCell(int position) {
+    public ECell removeCell(int position) throws IndexOutOfBoundsException {
         return cells.remove(position);
     }
 

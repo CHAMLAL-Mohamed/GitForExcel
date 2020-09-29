@@ -160,7 +160,6 @@ public class ExcelSheet implements ESheet {
     public ESheet deleteRows(int... positions) {
         Arrays.sort(positions);
         for (int position = positions.length - 1; position >= 0; position--) {
-            //System.out.println(positions[position]);
             deleteRow(positions[position]);
         }
         return this;
@@ -194,6 +193,23 @@ public class ExcelSheet implements ESheet {
         rowsNumber = rows.size();
 
         return this;
+    }
+
+    @Override
+    public ESheet deleteRowsRange(int beginIndex, int endIndex) {
+        checkBoundsBeginEnd(beginIndex, endIndex, rowsNumber);
+        for (int i = endIndex; i >= beginIndex; i--) {
+            deleteRow(i);
+        }
+        return this;
+    }
+
+    private void checkBoundsBeginEnd(int begin, int end, int length) {
+        if (begin < 0 || end >= rows.size() || begin > end) {
+            throw new IndexOutOfBoundsException("The provided range is not supported, " +
+                                                        "begin " + begin + ", end " +
+                                                        end + ", length " + length);
+        }
     }
 
     /**
@@ -300,6 +316,29 @@ public class ExcelSheet implements ESheet {
     }
 
     /**
+     * Deletes a range of columns from this {@link ESheet}.
+     *
+     * @param beginIndex the index of the first column to delete, inclusive
+     * @param endIndex   the index of the last column to delete, inclusive
+     * @return this {@link ESheet} with the implemented modifications
+     * @throws IndexOutOfBoundsException if the
+     *                                   {@code beginIndex} is negative, or
+     *                                   {@code endIndex} is larger than the length of
+     *                                   this {@code ESheet} columns, or
+     *                                   {@code beginIndex} is larger than
+     *                                   {@code endIndex}.
+     */
+    @Override
+    public ESheet deleteColumnRange(int beginIndex, int endIndex) {
+        checkBoundsBeginEnd(beginIndex, endIndex, columnsNumber);
+        for (int i = endIndex; i >= beginIndex; i--) {
+            deleteColumn(i);
+        }
+        return this;
+    }
+
+
+    /**
      * Deletes the column in the provided position,
      * In other words, from each row in the sheet,
      * delete the cell at <code>position</code>.
@@ -323,7 +362,7 @@ public class ExcelSheet implements ESheet {
      * (Empty or contains only white spaces).
      *
      * @return this {@link ESheet} with the implemented modifications.
-     * @// TODO: 21/09/2020 deleteEmptyColumns functionality will be added later
+     * TODO: 21/09/2020 deleteEmptyColumns functionality will be added later
      */
     @Override
     public ESheet deleteEmptyColumns() {
@@ -331,10 +370,21 @@ public class ExcelSheet implements ESheet {
     }
 
     /**
-     * @// TODO: 21/09/2020 matchWithTemplate functionality will be added later
+     * TODO: 21/09/2020 matchWithTemplate functionality will be added later
      */
     @Override
-    public ESheet matchWithTemplate(Template template) {
+    public ESheet matchWithTemplate(Template template, TemplateMode mode) {
+        switch (mode) {
+            case MATCH:
+                System.out.println(TemplateMode.MATCH);
+                break;
+            case CONCAT:
+                System.out.println(TemplateMode.CONCAT);
+                break;
+            case SPECIFIC:
+                System.out.println(TemplateMode.SPECIFIC);
+                break;
+        }
         return this;
     }
 
@@ -368,7 +418,7 @@ public class ExcelSheet implements ESheet {
      *                                        than the size of the already insertedRows
      */
     @Override
-    public ESheet setHeaders(List<String> newHeaders) {
+    public ESheet setHeaders(List<String> newHeaders) throws UnsupportedOperationException {
         if (newHeaders == null) {
             headers = null;
             return this;
@@ -434,7 +484,7 @@ public class ExcelSheet implements ESheet {
     }
 
     /**
-     * Returns the a <code>List<String></code> that contains the headers of this sheet.
+     * Returns the a <code>List</code> that contains the headers of this sheet.
      *
      * @return the list of headers of this sheet
      */
@@ -510,7 +560,7 @@ public class ExcelSheet implements ESheet {
      * @return the EColumn in the provided position.
      * @throws IndexOutOfBoundsException if any of the provided position is out of range
      *                                   in any row instance in this sheet
-     * @// TODO: 21/09/2020 getColumn functionality will be implemented later
+     *                                   TODO: 21/09/2020 getColumn functionality will be implemented later
      */
     @Override
     public EColumn getColumn(int position) {
@@ -523,7 +573,7 @@ public class ExcelSheet implements ESheet {
      * @param headerName the name of the header
      * @return the associated column to the provided header,
      * return <code>null</code> if the header is not found.
-     * @// TODO: 21/09/2020 getColumn functionality will be implemented later
+     * TODO: 21/09/2020 getColumn functionality will be implemented later
      */
     @Override
     public EColumn getColumn(String headerName) {
@@ -533,9 +583,9 @@ public class ExcelSheet implements ESheet {
     /**
      * Returns the rows of this sheet, without any check,
      * rows can be duplicate, not consistent(2 rows with same key, but not equal, or row with empty key).
+     * this is not a safe method to be used for comparison.
      *
      * @return the list of rows in this sheet.
-     * @apiNote this is not a safe method to be used for comparison,
      * @see ESheet#getUniqueData() instead.
      */
     @Override
@@ -545,20 +595,22 @@ public class ExcelSheet implements ESheet {
 
     /**
      * Returns a map with key that represents the row's key, and the associated row to each key.
+     * <p>
+     * this method was defined to fail fast if the data is inconsistent
+     * (2 rows with same key, but not equal, or row with empty key), and remove duplicate rows
      *
      * @return a map of row's keys as keys, and the rows as value
      * @throws SheetWithInconsistentDataException if the data is inconsistent,
      *                                            data is considered to be inconsistent if 2 rows with same key but not equal, or row with empty key
-     * @apiNote this method was defined to fail fast if the data is inconsistent
-     * (2 rows with same key, but not equal, or row with empty key), and remove duplicate rows
      */
     @Override
     public Map<String, ERow> getUniqueData() {
         return generateUniqueRows(rows);
     }
 
+
     private Map<String, ERow> generateUniqueRows(List<ERow> rowsList) {
-        final Map<String, ERow> tempUniqueKeys = new HashMap<>();
+        final Map<String, ERow> tempUniqueKeys = new LinkedHashMap<>();
         rowsList.forEach(row -> addRowToUniqueRows(row, tempUniqueKeys));
         return tempUniqueKeys;
     }
@@ -606,7 +658,7 @@ public class ExcelSheet implements ESheet {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(headers.toString()).append("\n");
-        uniqueRows.values().forEach(row -> builder.append(row.toString()).append("\n"));
+        getUniqueData().values().forEach(row -> builder.append(row.toString()).append("\n"));
         return builder.toString();
     }
 }

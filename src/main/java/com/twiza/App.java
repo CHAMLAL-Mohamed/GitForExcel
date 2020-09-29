@@ -5,48 +5,36 @@ package com.twiza;
 
 
 import com.twiza.domain.ESheet;
-import com.twiza.excel.EBuilder;
+import com.twiza.domain.EWorkbook;
 import com.twiza.utils.ExcelReader;
+import com.twiza.utils.ExcelWriter;
 
 public class App {
-
-
-    static int[] indexes = new int[]{0};
-    static EBuilder builder;
-
-    public static String APP_PATH = "C:\\Users\\mohamed.chamlal\\.gitforexcel";
-    public static String PATH1 = "test1.xlsx";
-    public static String PATH2 = "test2.xlsx";
-    public static String diffPath = "diffResult.xlsx";
-    public static String ecrFile = "C:\\Users\\mohamed.chamlal\\Desktop\\DPE\\PlausibilityUpdate&PTA\\BODY-P5\\" +
-                                           "testFile.xlsx";
     public static String testFile = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
                                             "plausibilityFile.xlsx";
 
     public static void main(String[] args) {
         try {
-
-            ESheet sheet = ExcelReader.getInstance()
-                                      .readWorkbook(testFile)
-                                      .getSheet("PLaUsibility")
-                                      .deleteRows(0, 2)
-                                      .deleteColumns(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-                                      .adoptFirstRowAsHeaders()
-                                      .setKeyIndexes(0);
+            EWorkbook eWorkbook = ExcelReader.getInstance()
+                                             .readWorkbook(testFile);
+            ESheet sheet = eWorkbook.getSheet("PLaUsibility")
+                                    .deleteRows(0, 2)
+                                    .deleteColumnRange(1, 10)
+                                    .adoptFirstRowAsHeaders()
+                                    .setKeyIndexes(0);
+            System.out.println(eWorkbook.getSheet("Sheet1"));
             System.out.println("--------------------------Print normal data---------------------------");
             System.out.println(sheet.getHeaders());
             System.out.println(sheet.getData());
             System.out.println("--------------------------Print unique data---------------------------");
             System.out.println(sheet.getHeaders());
             System.out.println(sheet.getUniqueData());
+            ExcelWriter.getInstance().writeToWorkbook("C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
+                                                              "writeToWBTest.xlsx", sheet);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-    private static void printEsheet(ESheet eSheet) {
-        System.out.println(eSheet);
-    }
 
 }

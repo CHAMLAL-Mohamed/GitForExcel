@@ -73,7 +73,7 @@ public interface ERow {
      * @return the deleted cell, nut if no cell was deleted
      * @throws IndexOutOfBoundsException, if the position is out of the range
      */
-    ECell removeCell(int position);
+    ECell removeCell(int position) throws IndexOutOfBoundsException;
 
     /**
      * append a {@code ECell} to end of the cells list.

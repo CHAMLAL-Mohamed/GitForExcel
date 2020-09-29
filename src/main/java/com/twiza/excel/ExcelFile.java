@@ -54,9 +54,9 @@ public class ExcelFile {
     private Map<String, ESheet> generateESheets(ExcelFileParams excelFileParams, List<String> ignoreSheetsPatterns) {
         Map<String, ESheet> eSheetsMap = new LinkedHashMap<>(); // Temporary List to hold the ESheets
         filterIgnoredSheets(excelFileParams, ignoreSheetsPatterns).
-                forEach(sheet -> eSheetsMap.put(sheet.getSheetName(),
-                        new ESheet(sheet, excelFileParams.getDataFormatter(), excelFileParams.getFormulaEvaluator()))
-                );
+                                                                          forEach(sheet -> eSheetsMap.put(sheet.getSheetName(),
+                                                                                                          new ESheet(sheet, excelFileParams.getDataFormatter(), excelFileParams.getFormulaEvaluator()))
+                                                                          );
 
         return eSheetsMap;
     }
@@ -71,12 +71,12 @@ public class ExcelFile {
     private List<Sheet> filterIgnoredSheets(ExcelFileParams excelFileParams, List<String> ignoreSheetsPatterns) {
         List<Sheet> sheets = new ArrayList<>();
         excelFileParams.getWorkbook()
-                .iterator()
-                .forEachRemaining(sheet -> {
-                    if (!shouldBeIgnored(sheet.getSheetName(), ignoreSheetsPatterns)) {
-                        sheets.add(sheet);
-                    }
-                });
+                       .iterator()
+                       .forEachRemaining(sheet -> {
+                           if (!shouldBeIgnored(sheet.getSheetName(), ignoreSheetsPatterns)) {
+                               sheets.add(sheet);
+                           }
+                       });
         return sheets;
     }
 
@@ -138,11 +138,11 @@ public class ExcelFile {
                 compareFile.addESheet(this.eSheets.get(sheetName), Status.ADDED);
             } else {
                 compareFile.addESheet(this.eSheets.get(sheetName)
-                        .compare(file.eSheets.get(sheetName)), Status.COMMON);
+                                                  .compare(file.eSheets.get(sheetName)), Status.COMMON);
             }
             //Display Sheet Status
             System.out.println("Sheet: " + sheetName + " have the status: "
-                    + compareFile.eSheets.get(sheetName).getStatus());
+                                       + compareFile.eSheets.get(sheetName).getStatus());
         };
 
         allSheets.forEach(assignSheetStatus);

@@ -13,6 +13,8 @@ public interface EWorkbook {
      */
     ESheet getSheet(String name);
 
+    ESheet getSheet(int index);
+
     String getWorkbookPath();
 
     Map<String, ESheet> getSheets();
@@ -23,6 +25,7 @@ public interface EWorkbook {
 
 
     boolean removeSheet(String sheetName);
+
 
     boolean equals(Object o);
 

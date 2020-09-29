@@ -1,8 +1,7 @@
 package com.twiza.utils;
 
-import com.twiza.Templates;
-import com.twiza.data.SheetReader;
 import com.twiza.domain.*;
+import com.twiza.exceptions.WorkbookWithInvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
@@ -10,28 +9,39 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class ExcelReader {
     /**
-     * a Map to store  {@link FormulaEvaluator} for each Workbook,
-     * this is used to avoid creating a FormulaEvaluator for each Cell.
+     * a static instance of this class to ensure Singleton.
      */
     private static ExcelReader INSTANCE;
+    /**
+     * Used to format cells into a String value.
+     */
     private final DataFormatter dataFormatterInstance;
-    private final List<String> ignoredSheets;
-    private final List<Templates> templates;
+    /**
+     * used to evaluate cells values.
+     */
     private FormulaEvaluator formulaEvaluator;
+    /**
+     * List of the sheet's names to be ignored.
+     */
+    private final List<String> sheetsToIgnorePatterns;
+
 
     private ExcelReader() {
         dataFormatterInstance = new DataFormatter();
-        this.ignoredSheets = new ArrayList<>();
-        this.ignoredSheets.add("^Sheet[\\w]*");//only sheets that don't start with Sheet[digit] will be read.
-        this.templates = new ArrayList<>();
+        this.sheetsToIgnorePatterns = new ArrayList<>();
+        this.sheetsToIgnorePatterns.add("^Sheet[\\w]*");//only sheets that don't start with Sheet[digit] will be read.
     }
 
     public static ExcelReader getInstance() {
@@ -42,37 +52,29 @@ public final class ExcelReader {
         return INSTANCE;
     }
 
-    public EWorkbook readWorkbook(String workbookPath) throws IOException, InvalidFormatException {
+    /**
+     * Reads excel workbook and convert it into {@link EWorkbook} instance
+     *
+     * @param workbookPath the path of the workbook to be read
+     * @return an instance of {@link EWorkbook} that contains the workbook's data
+     * @throws IOException            if the path provided does't exist or is not an excel file.
+     * @throws WorkbookWithInvalidFormatException if the input file is corrupted(files with invalid format)
+     */
+    public EWorkbook readWorkbook(String workbookPath) throws IOException {
         try (Workbook workbook = createWorkbook(workbookPath)) {
-            //Insert to the map in case the workbook is new.
-            if (formulaEvaluator == null) {
-                formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
-            }
-
-            final List<ESheet> tempSheets = new ArrayList<>();
-            List<Sheet> workbookSheets = new ArrayList<>();
-            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-                workbookSheets.add(workbook.getSheetAt(i));
-            }
-            workbookSheets
-                    .stream()
-                    .map(Sheet::getSheetName)
-                    .filter(isNotIgnored)
-                    .map(workbook::getSheet)
-                    .forEach(sheet -> tempSheets.add(readSheet(sheet)));
-            SheetReader.releaseResources();
-            return new ExcelWorkbook(" fd", tempSheets);
+            formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            List<ESheet> tempSheets = StreamSupport.stream(workbook.spliterator(), false)
+                                                   .map(Sheet::getSheetName)
+                                                   .filter(sheetIsIgnored.negate())
+                                                   .map(workbook::getSheet)
+                                                   .map(this::readSheet)
+                                                   .collect(Collectors.toCollection(ArrayList::new));
+            return new ExcelWorkbook(workbookPath, tempSheets);
+        } catch (InvalidFormatException e) {
+            throw new WorkbookWithInvalidFormatException("The workbook \"" + workbookPath + "\" is corrupted");
         }
-
     }
 
-    /**
-     *
-     * @param filePath
-     * @return
-     * @throws IOException
-     * @throws InvalidFormatException if the file is corrupted
-     */
     private Workbook createWorkbook(String filePath) throws IOException, InvalidFormatException {
         File file = new File(filePath);
         if (!file.exists()) {
@@ -81,31 +83,22 @@ public final class ExcelReader {
         return XSSFWorkbookFactory.createWorkbook(file, true);
     }
 
-    private final Predicate<String> isNotIgnored = new Predicate<>() {
+    private final Predicate<String> sheetIsIgnored = new Predicate<>() {
         @Override
         public boolean test(String sheetName) {
-            return ignoredSheets
-                           .stream()
-                           .map(Pattern::compile)
-                           .map(pattern -> pattern.matcher(sheetName))
-                           .noneMatch(Matcher::find);
-
+            return sheetsToIgnorePatterns.stream()
+                                         .map(Pattern::compile)
+                                         .map(pattern -> pattern.matcher(sheetName))
+                                         .anyMatch(Matcher::find);
         }
     };
 
     private ESheet readSheet(Sheet sheet) {
         ESheet eSheet = new ExcelSheet(sheet.getSheetName());
-        Iterable<Row> rowsIterable = sheet::rowIterator;
-        int maxCellsNumber = StreamSupport.stream(rowsIterable.spliterator(), false)
+        int maxCellsNumber = StreamSupport.stream(sheet.spliterator(), false)
                                           .mapToInt(Row::getLastCellNum)
                                           .max().orElseThrow(NoSuchElementException::new);
-        Iterator<Row> rows = sheet.rowIterator();
-        //System.out.println(maxCellsNumber);
-        //System.out.println(sheet.getLastRowNum());
-        rows.forEachRemaining(row -> {
-            //System.out.println("row number " + row.getRowNum() + " is added");
-            eSheet.addRow(readRow(row, maxCellsNumber));
-        });
+        sheet.rowIterator().forEachRemaining(row -> eSheet.addRow(readRow(row, maxCellsNumber)));
         return eSheet;
     }
 
@@ -114,7 +107,6 @@ public final class ExcelReader {
         ERow eRow = new ExcelRow();
         int firstCellPosition = 0;
         for (int i = firstCellPosition; i < maxCellsNumber; i++) {
-            // System.out.println("Cell value is " + reader.read(row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK)));
             eRow.addCell(readCell(row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK)));
         }
         return eRow;

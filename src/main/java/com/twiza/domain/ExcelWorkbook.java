@@ -6,9 +6,11 @@ import java.util.stream.Collectors;
 public class ExcelWorkbook implements EWorkbook {
     private final static String SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE = "EWorkbook cannot contain 2 ESheets with the same Name";
 
-    private final String path;
-    private final Map<String, ESheet> sheets;
+    private String path;
+    private Map<String, ESheet> sheets;
 
+    public ExcelWorkbook() {
+    }
 
     public ExcelWorkbook(String path, List<ESheet> sheetsList) {
         this.path = path;
@@ -30,6 +32,11 @@ public class ExcelWorkbook implements EWorkbook {
     @Override
     public ESheet getSheet(String name) {
         return sheets.getOrDefault(name.toLowerCase(), null);
+    }
+
+    @Override
+    public ESheet getSheet(int index) {
+        return null;
     }
 
     @Override
@@ -58,6 +65,8 @@ public class ExcelWorkbook implements EWorkbook {
     public boolean removeSheet(String sheetName) {
         return !(sheets.remove(sheetName.toLowerCase()) == null);
     }
+
+
 
 
     @Override

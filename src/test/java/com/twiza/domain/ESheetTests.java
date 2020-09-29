@@ -59,7 +59,7 @@ public class ESheetTests {
     @Test
     public void sheetIsCreatedIfEmptyRowsAndNullHeader() {
         ESheet sheet = new ExcelSheet(sheetName);
-        Assert.assertEquals(sheet.getName(), sheetName);
+        Assert.assertEquals(sheet.getName(), sheetName.toLowerCase());
         Assert.assertNull(sheet.getHeaders());
         Assert.assertTrue(sheet.getData().isEmpty());
     }
@@ -233,6 +233,49 @@ public class ESheetTests {
         Assert.assertEquals(rowsSize - 1, sheet.getRowsNumber());
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void deleteRowsRangeThrowsOutOfBoundExceptionIfBeginIndexIsBiggerThanEndIndex() {
+        int rowsSize = 5;
+        rows.clear();
+        for (int i = 0; i < rowsSize; i++) {
+            rows.add(mockERow(cellsSize));
+        }
+        new ExcelSheet(sheetName, rows, headers).deleteRowsRange(2, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void deleteRowsRangeThrowsOutOfBoundExceptionIfBeginIndexIsNegative() {
+        int rowsSize = 5;
+        rows.clear();
+        for (int i = 0; i < rowsSize; i++) {
+            rows.add(mockERow(cellsSize));
+        }
+        new ExcelSheet(sheetName, rows, headers).deleteRowsRange(-1, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void deleteRowsRangeThrowsOutOfBoundExceptionIfEndIndexIsBiggerOrEqualRowsSize() {
+        int rowsSize = 5;
+        rows.clear();
+        for (int i = 0; i < rowsSize; i++) {
+            rows.add(mockERow(cellsSize));
+        }
+        new ExcelSheet(sheetName, rows, headers).deleteRowsRange(0, rowsSize);
+    }
+
+    @Test
+    public void deleteRowsRangeSuccessfullyIfIndexesInRange() {
+        int rowsSize = 5;
+        int beginIndex = 2;
+        int endIndex = 3;
+        rows = getRealRows(rowsSize);
+        ESheet sheet = new ExcelSheet(sheetName, rows, headers).deleteRowsRange(beginIndex, endIndex);
+        for (int i = endIndex; i >= beginIndex; i--) {
+            rows.remove(i);
+        }
+        Assert.assertEquals(rows, sheet.getData());
+    }
+
     //TODO: add tests for addColumn (all of them are still not tested)
 
     @Test(expected = IndexOutOfBoundsException.class)
@@ -279,6 +322,53 @@ public class ESheetTests {
         }
         ESheet sheet = new ExcelSheet(sheetName, rows, null).deleteColumns(columnsToDelete);
         Assert.assertEquals(cellsSize - 1, sheet.getColumnsNumber());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void deleteColumnsRangeThrowsOutOfBoundExceptionIfBeginIndexIsBiggerThanEndIndex() {
+        int rowsSize = 5;
+        rows.clear();
+        for (int i = 0; i < rowsSize; i++) {
+            rows.add(mockERow(cellsSize));
+        }
+        new ExcelSheet(sheetName, rows, headers).deleteColumnRange(2, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void deleteColumnsRangeThrowsOutOfBoundExceptionIfBeginIndexIsNegative() {
+        int rowsSize = 5;
+        rows.clear();
+        for (int i = 0; i < rowsSize; i++) {
+            rows.add(mockERow(cellsSize));
+        }
+        new ExcelSheet(sheetName, rows, headers).deleteColumnRange(-1, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void deleteColumnsRangeThrowsOutOfBoundExceptionIfEndIndexIsBiggerOrEqualColumnsSize() {
+        int rowsSize = 5;
+        rows.clear();
+        for (int i = 0; i < rowsSize; i++) {
+            rows.add(mockERow(cellsSize));
+        }
+        new ExcelSheet(sheetName, rows, headers).deleteColumnRange(0, cellsSize);
+    }
+
+    @Test
+    public void deleteColumnsRangeSuccessfullyIfIndexesInRange() {
+        int rowsSize = 5;
+        int beginIndex = 1;
+        int endIndex = 3;
+        rows = getRealRows(rowsSize);
+        List<ERow> checkRows = getRealRows(rowsSize);
+        ESheet sheet = new ExcelSheet(sheetName, rows, headers).deleteColumnRange(beginIndex, endIndex);
+        checkRows.forEach(row -> {
+            for (int i = endIndex; i >= beginIndex; i--) {
+                row.removeCell(i);
+            }
+        });
+
+        Assert.assertEquals(checkRows, sheet.getData());
     }
 
     @Test(expected = NullPointerException.class)

@@ -8,6 +8,17 @@ import java.util.Map;
 
 public interface ESheet {
 
+
+    /**
+     * this enum is used to specify which mode will be used to match sheet against a headers
+     * the headers can be the concatenation of unique headers of 2 sheets, matched headers
+     * between 2 sheets, or a specific headers.
+     */
+    enum TemplateMode {
+        MATCH, CONCAT, SPECIFIC;
+    }
+
+
     /**
      * Appends a row at the end of this ESheet.
      *
@@ -65,6 +76,21 @@ public interface ESheet {
 
 
     /**
+     * Deletes a range of columns from this {@link ESheet}
+     *
+     * @param beginIndex the index of the first row to delete, inclusive
+     * @param endIndex   the index of the last row to delete, inclusive
+     * @return this {@link ESheet} with the implemented modifications
+     * @throws IndexOutOfBoundsException if the
+     *                                   {@code beginIndex} is negative, or
+     *                                   {@code endIndex} is larger than the length of
+     *                                   this {@code ESheet} rows, or
+     *                                   {@code beginIndex} is larger than
+     *                                   {@code endIndex}.
+     */
+    ESheet deleteRowsRange(int beginIndex, int endIndex);
+
+    /**
      * Deletes all the empty rows(optional operation).
      * a row is considered to be empty, if all the cells in the row are blank
      * (Empty or contains only white spaces).
@@ -109,8 +135,6 @@ public interface ESheet {
      */
     ESheet addColumn(int position, EColumn column, boolean appendBlanks);
 
-
-
     /**
      * Deletes the columns in the provided positions,
      * In other words, from each row in the sheet,
@@ -123,6 +147,21 @@ public interface ESheet {
     ESheet deleteColumns(int... positions);
 
     /**
+     * Deletes a range of columns from this {@link ESheet}.
+     *
+     * @param beginIndex the index of the first column to delete, inclusive
+     * @param endIndex   the index of the last column to delete, inclusive
+     * @return this {@link ESheet} with the implemented modifications
+     * @throws IndexOutOfBoundsException if the
+     *                                   {@code beginIndex} is negative, or
+     *                                   {@code endIndex} is larger than the length of
+     *                                   this {@code ESheet} columns, or
+     *                                   {@code beginIndex} is larger than
+     *                                   {@code endIndex}.
+     */
+    ESheet deleteColumnRange(int beginIndex, int endIndex);
+
+    /**
      * Deletes all the empty columns(optional operation).
      * a column is considered to be empty, if all the cells in the column are blank,
      * (Empty or contains only white spaces).
@@ -132,9 +171,12 @@ public interface ESheet {
     ESheet deleteEmptyColumns();
 
     /**
-     * @// TODO: 21/09/2020 functionality will be added later
+     * TODO: 21/09/2020 functionality will be added later
+     *
+     * @param template the template to compare with
+     * @return this {@link ESheet} with the implemented modifications.
      */
-    ESheet matchWithTemplate(Template template);
+    ESheet matchWithTemplate(Template template, TemplateMode mode);
 
     /**
      * Sets the  indexes of the key, in case of simple key it will be one index, otherwise an array of indexes,
@@ -188,7 +230,7 @@ public interface ESheet {
     Status getStatus();
 
     /**
-     * Returns the a <code>List<String></code> that contains the headers of this sheet.
+     * Returns the a <code>List</code> that contains the headers of this sheet.
      *
      * @return the list of headers of this sheet
      */
@@ -258,7 +300,7 @@ public interface ESheet {
      * rows can be duplicate, not consistent(2 rows with same key, but not equal, or row with empty key).
      *
      * @return the list of rows in this sheet.
-     * @apiNote this is not a safe method to be used for comparison,
+     * this is not a safe method to be used for comparison,
      * @see ESheet#getUniqueData() instead.
      */
     List<ERow> getData();
@@ -266,14 +308,16 @@ public interface ESheet {
 
     /**
      * Returns a map with key that represents the row's key, and the associated row to each key.
+     * This method was defined to fail fast if the data is inconsistent
+     * (2 rows with same key, but not equal, or row with empty key), and remove duplicate rows
      *
      * @return a map of row's keys as keys, and the rows as value
      * @throws SheetWithInconsistentDataException if the data is inconsistent,
      *                                            data is considered to be inconsistent if 2 rows with same key but not equal, or row with empty key
-     * @apiNote this method was defined to fail fast if the data is inconsistent
-     * (2 rows with same key, but not equal, or row with empty key), and remove duplicate rows
      */
     Map<String, ERow> getUniqueData();
+
+
 
     /**
      * Compares the specified object with this sheet for equality.  Returns
