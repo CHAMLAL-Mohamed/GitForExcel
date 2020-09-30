@@ -198,6 +198,30 @@ public class ExcelRow implements ERow {
         return cells.set(position, cell);
     }
 
+    /**
+     * Compare this row with anther one, and returns a new {@code ERow} that contains
+     * the details of what elements have been changed.
+     *
+     * @param oldRow the other {@code ESheet} to compare with
+     * @return the new {@code ESheet} with all the changes made between this sheet and the new one.
+     */
+    @Override
+    public ERow compare(ERow oldRow) {
+        if (oldRow == null) {
+            ERow diffRow = new ExcelRow(getCells());
+            diffRow.setStatus(Status.ADDED);
+            return diffRow;
+        }
+        ERow diffRow = new ExcelRow(oldRow.getCells());
+        for (int i = 0; i < getSize(); i++) {
+            String currentValue = getCell(i).getValue();
+            String oldValue = diffRow.getCell(i).updateValue(currentValue);
+            System.out.print("Cell value was " + oldValue + " become " + currentValue);
+        }
+        System.out.println();
+        return diffRow;
+    }
+
     @Override
     public int hashCode() {
         return cells.hashCode();

@@ -22,6 +22,7 @@ public interface ERow {
      * @return the list of Cells
      */
     List<ECell> getCells();
+
     /**
      * Get the List of cells values in this row
      *
@@ -105,6 +106,14 @@ public interface ERow {
      */
     ECell replaceCell(int position, ECell cell);
 
+    /**
+     * Compare this row with anther one, and returns a new {@code ERow} that contains
+     * the details of what elements have been changed.
+     *
+     * @param oldRow the other {@code ESheet} to compare with
+     * @return the new {@code ESheet} with all the changes made between this sheet and the new one.
+     */
+    ERow compare(ERow oldRow);
 
     /**
      * Compares the specified object with this row for equality.  Returns

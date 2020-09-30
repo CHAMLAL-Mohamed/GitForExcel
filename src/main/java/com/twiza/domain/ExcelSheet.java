@@ -1,5 +1,6 @@
 package com.twiza.domain;
 
+import com.twiza.exceptions.HeaderNotMatchingException;
 import com.twiza.exceptions.SheetWithInconsistentDataException;
 import com.twiza.exceptions.UnsupportedStatusChangeException;
 
@@ -608,6 +609,45 @@ public class ExcelSheet implements ESheet {
         return generateUniqueRows(rows);
     }
 
+    /**
+     * Compare this sheet with anther one, and returns a new sheet that contains
+     * the details of what elements have been changed, added or deleted.
+     *
+     * @param old the other {@code ESheet} to compare with
+     * @return the new {@code ESheet} with all the changes made between this sheet and the new one.
+     * @throws HeaderNotMatchingException if the 2 sheets headers are not matching,
+     *                                    2 headers are matching if they are equal
+     */
+    @Override
+    public ESheet compare(ESheet old) {
+        ESheet diffSheet;
+
+        if (old == null) {
+            diffSheet = new ExcelSheet(name, rows, headers, keyIndexes);
+            diffSheet.setStatus(Status.ADDED);
+            System.out.println("Sheet " + getName() + " is added");
+            return diffSheet;
+        }
+        if (!old.getHeaders().equals(getHeaders())) {
+            throw new HeaderNotMatchingException("Headers are not matching");
+        }
+        diffSheet = new ExcelSheet(getName(), getHeaders()).setKeyIndexes(getKeysIndexes());
+        Set<String> allRowsKeys = new LinkedHashSet<>(old.getUniqueData().keySet());
+        allRowsKeys.addAll(getUniqueData().keySet());
+
+        allRowsKeys.forEach(key -> assignRowToCompareSheet(old.getRow(key), getRow(key), diffSheet));
+        return diffSheet;
+    }
+
+    private void assignRowToCompareSheet(ERow oldRow, ERow currentRow, ESheet sheet) {
+        if (currentRow == null) {
+            //if current is null than old is not because the key is extracted from one of them
+            oldRow.setStatus(Status.DELETED);
+            sheet.addRow(oldRow);
+        } else {
+            sheet.addRow(currentRow.compare(oldRow));
+        }
+    }
 
     private Map<String, ERow> generateUniqueRows(List<ERow> rowsList) {
         final Map<String, ERow> tempUniqueKeys = new LinkedHashMap<>();

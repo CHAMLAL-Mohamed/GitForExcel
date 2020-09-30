@@ -1,5 +1,6 @@
 package com.twiza.domain;
 
+import com.twiza.exceptions.HeaderNotMatchingException;
 import com.twiza.exceptions.SheetWithInconsistentDataException;
 import com.twiza.exceptions.UnsupportedStatusChangeException;
 
@@ -317,7 +318,16 @@ public interface ESheet {
      */
     Map<String, ERow> getUniqueData();
 
-
+    /**
+     * Compare this sheet with anther one, and returns a new sheet that contains
+     * the details of what elements have been changed, added or deleted.
+     *
+     * @param old the other {@code ESheet} to compare with
+     * @return the new {@code ESheet} with all the changes made between this sheet and the new one.
+     * @throws HeaderNotMatchingException if the 2 sheets headers are not matching,
+     *                                    2 headers are matching if they are equal
+     */
+    ESheet compare(ESheet old);
 
     /**
      * Compares the specified object with this sheet for equality.  Returns

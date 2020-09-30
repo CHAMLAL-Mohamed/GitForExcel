@@ -26,6 +26,14 @@ public interface EWorkbook {
 
     boolean removeSheet(String sheetName);
 
+    /**
+     * Compare this sheet with anther one, and returns a new sheet that contains
+     * the details of what elements have been changed, added or deleted.
+     *
+     * @param oldWorkbook the other {@code ESheet} to compare with
+     * @return the new {@code ESheet} with all the changes made between this sheet and the new one.
+     */
+    EWorkbook compare(EWorkbook oldWorkbook);
 
     boolean equals(Object o);
 

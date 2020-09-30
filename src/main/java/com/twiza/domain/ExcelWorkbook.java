@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExcelWorkbook implements EWorkbook {
-    private final static String SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE = "EWorkbook cannot contain 2 ESheets with the same Name";
+    private final static String SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE = "EWorkbook cannot contain 2 getSheets() with the same Name";
 
     private String path;
     private Map<String, ESheet> sheets;
@@ -66,8 +66,31 @@ public class ExcelWorkbook implements EWorkbook {
         return !(sheets.remove(sheetName.toLowerCase()) == null);
     }
 
+    @Override
+    public EWorkbook compare(EWorkbook oldWorkbook) {
+        if (oldWorkbook == null) {
+            throw new NullPointerException("the oldWorkbook cannot be null");
+        }
+        Set<String> allSheets = new HashSet<>(oldWorkbook.getSheets().keySet());
+        allSheets.addAll(getSheets().keySet());
+        EWorkbook diffWorkbook = new ExcelWorkbook();
+        allSheets.forEach(sheetName -> assignSheetToCompareWorkbook(oldWorkbook.getSheet(sheetName),
+                                                                    getSheet(sheetName),
+                                                                    diffWorkbook));
 
+        return diffWorkbook;
+    }
 
+    private void assignSheetToCompareWorkbook(ESheet oldSheet, ESheet currentSheet, EWorkbook workbook) {
+        if (currentSheet == null) {
+            //if current is null than old is not because the key is extracted from one of them
+            oldSheet.setStatus(Status.DELETED);
+            workbook.addSheet(oldSheet);
+            System.out.println("Sheet "+oldSheet.getName()+" is deleted");
+        } else {
+            workbook.addSheet(currentSheet.compare(oldSheet));
+        }
+    }
 
     @Override
     public String toString() {
