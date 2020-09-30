@@ -12,7 +12,7 @@ plugins {
     id 'java-library'
     id 'application'
 }
-version = '0.1.0'
+version = '0.2.0'
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.

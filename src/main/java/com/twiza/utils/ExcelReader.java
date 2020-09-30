@@ -57,7 +57,7 @@ public final class ExcelReader {
      *
      * @param workbookPath the path of the workbook to be read
      * @return an instance of {@link EWorkbook} that contains the workbook's data
-     * @throws IOException            if the path provided does't exist or is not an excel file.
+     * @throws IOException                        if the path provided does't exist or is not an excel file.
      * @throws WorkbookWithInvalidFormatException if the input file is corrupted(files with invalid format)
      */
     public EWorkbook readWorkbook(String workbookPath) throws IOException {
@@ -68,6 +68,23 @@ public final class ExcelReader {
                                                    .filter(sheetIsIgnored.negate())
                                                    .map(workbook::getSheet)
                                                    .map(this::readSheet)
+                                                   .map(sheet -> sheet.adoptFirstRowAsHeaders(false))
+                                                   .collect(Collectors.toCollection(ArrayList::new));
+            return new ExcelWorkbook(workbookPath, tempSheets);
+        } catch (InvalidFormatException e) {
+            throw new WorkbookWithInvalidFormatException("The workbook \"" + workbookPath + "\" is corrupted");
+        }
+    }
+
+    public EWorkbook readWorkbook(String workbookPath, boolean firstRowIsHeaders) throws IOException {
+        try (Workbook workbook = createWorkbook(workbookPath)) {
+            formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            List<ESheet> tempSheets = StreamSupport.stream(workbook.spliterator(), false)
+                                                   .map(Sheet::getSheetName)
+                                                   .filter(sheetIsIgnored.negate())
+                                                   .map(workbook::getSheet)
+                                                   .map(this::readSheet)
+                                                   .map(sheet -> sheet.adoptFirstRowAsHeaders(firstRowIsHeaders))
                                                    .collect(Collectors.toCollection(ArrayList::new));
             return new ExcelWorkbook(workbookPath, tempSheets);
         } catch (InvalidFormatException e) {

@@ -434,9 +434,16 @@ public class ExcelSheet implements ESheet {
         return this;
     }
 
+    /**
+     * takes the first row in the sheet and set it as headers, if isFirstRowHeaders is{@code true},
+     * otherwise does nothing.
+     *
+     * @param isFirstRowHeaders if the first row should be considered as headers.
+     * @return this {@link ESheet} with the implemented modifications.
+     */
     @Override
-    public ESheet adoptFirstRowAsHeaders() {
-        if (!rows.isEmpty()) {
+    public ESheet adoptFirstRowAsHeaders(boolean isFirstRowHeaders) {
+        if (isFirstRowHeaders && !rows.isEmpty()) {
             ERow firstRow = rows.get(0);
             setHeaders(firstRow.getCellsValues());
             deleteRow(firstRow);
@@ -625,7 +632,7 @@ public class ExcelSheet implements ESheet {
         if (old == null) {
             diffSheet = new ExcelSheet(name, rows, headers, keyIndexes);
             diffSheet.setStatus(Status.ADDED);
-            System.out.println("Sheet " + getName() + " is added");
+            System.out.println("Sheet " + diffSheet.getName() + "\t" + diffSheet.getStatus());
             return diffSheet;
         }
         if (!old.getHeaders().equals(getHeaders())) {
@@ -643,6 +650,7 @@ public class ExcelSheet implements ESheet {
         if (currentRow == null) {
             //if current is null than old is not because the key is extracted from one of them
             oldRow.setStatus(Status.DELETED);
+            System.out.println("row " + oldRow + "\t" + oldRow.getStatus());
             sheet.addRow(oldRow);
         } else {
             sheet.addRow(currentRow.compare(oldRow));

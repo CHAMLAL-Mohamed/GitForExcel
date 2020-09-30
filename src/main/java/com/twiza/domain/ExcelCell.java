@@ -158,8 +158,8 @@ public class ExcelCell implements ECell {
         this.changesHistory.append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                            .append("\t")
                            .append(oldValue)
-                           .append("User")
-                           .append("\t");
+                           .append("\t")
+                           .append("User");
     }
 
 

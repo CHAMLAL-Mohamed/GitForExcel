@@ -201,11 +201,13 @@ public interface ESheet {
     ESheet setHeaders(List<String> newHeaders);
 
     /**
-     * takes the first row in the sheet and set it as headers,
+     * takes the first row in the sheet and set it as headers, if isFirstRowHeaders is{@code true},
+     * otherwise does nothing.
      *
+     * @param isFirstRowHeaders if the first row should be considered as headers.
      * @return this {@link ESheet} with the implemented modifications.
      */
-    ESheet adoptFirstRowAsHeaders();
+    ESheet adoptFirstRowAsHeaders(boolean isFirstRowHeaders);
 
     /**
      * set a new Status for this element, if it's applicable

@@ -10,6 +10,7 @@ public class ExcelWorkbook implements EWorkbook {
     private Map<String, ESheet> sheets;
 
     public ExcelWorkbook() {
+        this.sheets = new HashMap<>();
     }
 
     public ExcelWorkbook(String path, List<ESheet> sheetsList) {
@@ -74,19 +75,22 @@ public class ExcelWorkbook implements EWorkbook {
         Set<String> allSheets = new HashSet<>(oldWorkbook.getSheets().keySet());
         allSheets.addAll(getSheets().keySet());
         EWorkbook diffWorkbook = new ExcelWorkbook();
-        allSheets.forEach(sheetName -> assignSheetToCompareWorkbook(oldWorkbook.getSheet(sheetName),
-                                                                    getSheet(sheetName),
-                                                                    diffWorkbook));
-
+        allSheets.forEach(sheetName -> {
+            System.out.println("Sheet to compare is" + "\t" + sheetName);
+            assignSheetToCompareWorkbook(oldWorkbook.getSheet(sheetName),
+                                         getSheet(sheetName),
+                                         diffWorkbook);
+        });
         return diffWorkbook;
     }
 
     private void assignSheetToCompareWorkbook(ESheet oldSheet, ESheet currentSheet, EWorkbook workbook) {
+
         if (currentSheet == null) {
             //if current is null than old is not because the key is extracted from one of them
             oldSheet.setStatus(Status.DELETED);
             workbook.addSheet(oldSheet);
-            System.out.println("Sheet "+oldSheet.getName()+" is deleted");
+            System.out.println("Sheet " + oldSheet.getName() + "\t" + oldSheet.getStatus());
         } else {
             workbook.addSheet(currentSheet.compare(oldSheet));
         }

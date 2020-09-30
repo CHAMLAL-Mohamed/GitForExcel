@@ -210,15 +210,20 @@ public class ExcelRow implements ERow {
         if (oldRow == null) {
             ERow diffRow = new ExcelRow(getCells());
             diffRow.setStatus(Status.ADDED);
+            System.out.println("row " + diffRow + "\t" + diffRow.getStatus());
             return diffRow;
         }
         ERow diffRow = new ExcelRow(oldRow.getCells());
         for (int i = 0; i < getSize(); i++) {
             String currentValue = getCell(i).getValue();
             String oldValue = diffRow.getCell(i).updateValue(currentValue);
-            System.out.print("Cell value was " + oldValue + " become " + currentValue);
+            if (oldValue != null) {
+                System.out.println("old value: " + oldValue + "\t" + "new value: " + currentValue);
+                System.out.println(diffRow.getCell(i).getStatus());
+                System.out.println(diffRow.getCell(i).getChangesHistory());
+            }
         }
-        System.out.println();
+        diffRow.setStatus(Status.CHANGED);
         return diffRow;
     }
 

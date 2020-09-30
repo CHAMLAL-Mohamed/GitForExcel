@@ -60,24 +60,6 @@ public class WorkbookReader {
         return INSTANCE;
     }
 
-    public EWorkbook read(Workbook workbook) {
-        final List<ESheet> tempSheets = new ArrayList<>();
-        SheetReader sheetReader = SheetReader.getInstance(dataFormatterInstance);
-        List<Sheet> workbookSheets = new ArrayList<>();
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            workbookSheets.add(workbook.getSheetAt(i));
-        }
-        workbookSheets
-                .stream()
-                .map(Sheet::getSheetName)
-                .filter(isNotIgnored)
-                .map(workbook::getSheet)
-                .forEach(sheet -> {
-                    tempSheets.add(sheetReader.read(sheet));
-                });
-        SheetReader.releaseResources();
-        return new ExcelWorkbook(" fd", tempSheets);
-    }
 
     public EWorkbook read(String filePath) throws IOException, InvalidFormatException {
         try (Workbook workbook = createWorkbook(filePath)) {
@@ -101,6 +83,7 @@ public class WorkbookReader {
         }
 
     }
+
 
     private Workbook createWorkbook(String filePath) throws IOException, InvalidFormatException {
         File file = new File(filePath);

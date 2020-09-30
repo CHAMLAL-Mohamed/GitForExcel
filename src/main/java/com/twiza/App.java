@@ -4,33 +4,29 @@
 package com.twiza;
 
 
-import com.twiza.domain.ESheet;
-import com.twiza.domain.EWorkbook;
 import com.twiza.utils.ExcelReader;
-import com.twiza.utils.ExcelWriter;
 
 public class App {
     public static String testFile = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
                                             "plausibilityFile.xlsx";
+    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\old.xlsx";
+    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new.xlsx";
 
     public static void main(String[] args) {
         try {
-            EWorkbook eWorkbook = ExcelReader.getInstance()
-                                             .readWorkbook(testFile);
-            ESheet sheet = eWorkbook.getSheet("PLaUsibility")
-                                    .deleteRows(0, 2)
-                                    .deleteColumnRange(1, 10)
-                                    .adoptFirstRowAsHeaders()
-                                    .setKeyIndexes(0);
-            System.out.println(eWorkbook.getSheet("Sheet1"));
-            System.out.println("--------------------------Print normal data---------------------------");
-            System.out.println(sheet.getHeaders());
-            System.out.println(sheet.getData());
-            System.out.println("--------------------------Print unique data---------------------------");
-            System.out.println(sheet.getHeaders());
-            System.out.println(sheet.getUniqueData());
-            ExcelWriter.getInstance().writeToWorkbook("C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
-                                                              "writeToWBTest.xlsx", sheet);
+            ExcelReader.getInstance().readWorkbook(newFilePath,true)
+                       .compare(ExcelReader.getInstance().readWorkbook(oldFilePath,true));
+//            ESheet oldSheet = ExcelReader.getInstance().readWorkbook(oldFilePath)
+//                                         .getSheet("Tabelle1")
+//                                         .adoptFirstRowAsHeaders()
+//                                         .setKeyIndexes(0);
+//            ESheet newSheet = ExcelReader.getInstance().readWorkbook(newFilePath)
+//                                         .getSheet("Tabelle1")
+//                                         .adoptFirstRowAsHeaders()
+//                                         .setKeyIndexes(0);
+//            ESheet diffSheet = newSheet.compare(oldSheet);
+//            System.out.println("--------------------------Print normal data---------------------------");
+//            System.out.println("--------------------------Print unique data---------------------------");
         } catch (Exception e) {
             e.printStackTrace();
         }
