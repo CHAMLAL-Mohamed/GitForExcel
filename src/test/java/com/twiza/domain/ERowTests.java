@@ -32,11 +32,17 @@ public class ERowTests {
 
     @Before
     public void Setup() {
-        for (int i = 0; i < CELLS_LIST_SIZE; i++) {
+        cells = mockCells(CELLS_LIST_SIZE);
+    }
+
+    public List<ECell> mockCells(int cellsSize) {
+        List<ECell> cells = new ArrayList<>();
+        for (int i = 0; i < cellsSize; i++) {
             ECell cell = mock(ECell.class);
-            when(cell.getValue()).thenReturn("cellValue" + (i + 1));
+            when(cell.getValue()).thenReturn("cellValue" + (i));
             cells.add(cell);
         }
+        return cells;
     }
 
     //Construction test
@@ -114,7 +120,31 @@ public class ERowTests {
         row.replaceCell(positionToReplace, null);
     }
 
+    @Test
+    public void compareReturnsTheCurrentRowIfProvidedRowIsNull() {
+        ERow row = new ExcelRow(cells);
+        ERow diffRow = row.compare(null);
+        Assert.assertEquals(row, diffRow);
+    }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void compareThrowsUnsupportedExceptionIfProvidedRowSizeDoesNotMatchCurrentRowSize() {
+        ERow row = new ExcelRow(cells);
+        cells.remove(0);
+        ERow oldRow = new ExcelRow(cells);
+        row.compare(oldRow);
+    }
 
+//    @Test
+//    public void compareReturnsRowEqualToTheOldRowIfNoChangesAreMade() {
+//        List<ECell> oldCells = mockCells(CELLS_LIST_SIZE);
+//        List<ECell> newCells = mockCells(CELLS_LIST_SIZE);
+//        newCells.forEach(cell -> when(cell.updateValue(any())).thenReturn(null));
+//        ERow oldRow = new ExcelRow(oldCells);
+//        ERow newRow = new ExcelRow(oldCells);
+//        ERow diffRow = newRow.compare(oldRow);
+//        assert
+//
+//    }
 
 }

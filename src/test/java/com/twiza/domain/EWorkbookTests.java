@@ -43,7 +43,7 @@ public class EWorkbookTests {
     }
 
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void EWorkbookWithDifferentSheetsWithSameNamesTest() {
         for (int i = 0; i < sheetsNumber; i++) {
             sheets.add(mockESheet("SameName"));

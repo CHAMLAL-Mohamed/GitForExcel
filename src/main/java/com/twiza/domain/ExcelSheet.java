@@ -1,3 +1,19 @@
+/*
+ * Copyright  2020  Chamlal.Mohamed
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.twiza.domain;
 
 import com.twiza.exceptions.HeaderNotMatchingException;
@@ -627,33 +643,48 @@ public class ExcelSheet implements ESheet {
      */
     @Override
     public ESheet compare(ESheet old) {
-        ESheet diffSheet;
-
-        if (old == null) {
-            diffSheet = new ExcelSheet(name, rows, headers, keyIndexes);
-            diffSheet.setStatus(Status.ADDED);
-            System.out.println("Sheet " + diffSheet.getName() + "\t" + diffSheet.getStatus());
-            return diffSheet;
+        if (!(old instanceof ExcelSheet)) {
+            setStatus(Status.ADDED);
+            return this;
         }
-        if (!old.getHeaders().equals(getHeaders())) {
-            throw new HeaderNotMatchingException("Headers are not matching");
-        }
-        diffSheet = new ExcelSheet(getName(), getHeaders()).setKeyIndexes(getKeysIndexes());
-        Set<String> allRowsKeys = new LinkedHashSet<>(old.getUniqueData().keySet());
-        allRowsKeys.addAll(getUniqueData().keySet());
-
+        checkIfHeadersMatch(getHeaders(), old.getHeaders());
+        ESheet diffSheet = new ExcelSheet(getName(), getHeaders()).setKeyIndexes(getKeysIndexes());
+        Set<String> allRowsKeys = assembleTwoSets(old.getUniqueData().keySet(), getUniqueData().keySet());
         allRowsKeys.forEach(key -> assignRowToCompareSheet(old.getRow(key), getRow(key), diffSheet));
         return diffSheet;
+    }
+
+    private void checkIfHeadersMatch(List<String> headers, List<String> otherHeaders) {
+        if (!headers.equals(otherHeaders)) {
+            throw new HeaderNotMatchingException("Headers are not matching");
+        }
+    }
+
+    private Set<String> assembleTwoSets(Set<String> set1, Set<String> set2) {
+        Set<String> sumSet = new LinkedHashSet<>(set1);
+        sumSet.addAll(set2);
+        return sumSet;
     }
 
     private void assignRowToCompareSheet(ERow oldRow, ERow currentRow, ESheet sheet) {
         if (currentRow == null) {
             //if current is null than old is not because the key is extracted from one of them
             oldRow.setStatus(Status.DELETED);
-            System.out.println("row " + oldRow + "\t" + oldRow.getStatus());
+            oldRow.getCells().forEach(cell -> cell.setStatus(Status.DELETED));
+//            System.out.println("row " + oldRow + "\t" + oldRow.getStatus());
             sheet.addRow(oldRow);
+        } else if (oldRow == null) {
+            currentRow.setStatus(Status.ADDED);
+            currentRow.getCells().forEach(cell -> cell.setStatus(Status.ADDED));
+//            System.out.println("row " + currentRow + "\t" + currentRow.getStatus());
+            sheet.addRow(currentRow);
+
         } else {
-            sheet.addRow(currentRow.compare(oldRow));
+            ERow row = currentRow.compare(oldRow);
+            if (!row.getStatus().equals(Status.NEW) && sheet.getStatus().equals(Status.NEW)) {
+                sheet.setStatus(Status.CHANGED);
+            }
+            sheet.addRow(row);
         }
     }
 

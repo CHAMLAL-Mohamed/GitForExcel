@@ -10,9 +10,9 @@
 plugins {
     // Apply the java plugin to add support for Java
     id 'java-library'
-    id 'application'
+//    id 'application'
 }
-version = '0.2.0'
+version = '0.2.1'
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -43,7 +43,7 @@ jar {
 }
 
 
-application {
-    // Define the main class for the application.
-    mainClassName = 'com.twiza.App'
-}
+//application {
+//    // Define the main class for the application.
+//    mainClassName = 'com.twiza.App'
+//}

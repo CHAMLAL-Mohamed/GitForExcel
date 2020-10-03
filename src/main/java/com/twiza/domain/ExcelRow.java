@@ -1,3 +1,19 @@
+/*
+ * Copyright  2020  Chamlal.Mohamed
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.twiza.domain;
 
 
@@ -43,7 +59,7 @@ public class ExcelRow implements ERow {
      */
     public ExcelRow(List<ECell> cells) {
         Objects.requireNonNull(cells);
-        this.cells = cells;
+        this.cells = new ArrayList<>(cells);
         this.status = DEFAULT_STATUS;
     }
 
@@ -109,7 +125,7 @@ public class ExcelRow implements ERow {
             keyBuilder.append(cells.get(position).getValue());
         }
         String key = keyBuilder.toString();
-        if (key.isBlank()) {
+        if (key.trim().isEmpty()) {
             throw new UnsupportedOperationException(EMPTY_KEY_EXCEPTION_MESSAGE);
         }
         return key;
@@ -204,27 +220,36 @@ public class ExcelRow implements ERow {
      *
      * @param oldRow the other {@code ESheet} to compare with
      * @return the new {@code ESheet} with all the changes made between this sheet and the new one.
+     * @throws UnsupportedOperationException if the size of the 2 rows is not the same
      */
     @Override
     public ERow compare(ERow oldRow) {
-        if (oldRow == null) {
-            ERow diffRow = new ExcelRow(getCells());
-            diffRow.setStatus(Status.ADDED);
-            System.out.println("row " + diffRow + "\t" + diffRow.getStatus());
-            return diffRow;
+        if (!(oldRow instanceof ExcelRow)) {
+            setStatus(Status.ADDED);
+            return this;
         }
+        checkRowsSizeEquality(getSize(), oldRow.getSize());
         ERow diffRow = new ExcelRow(oldRow.getCells());
-        for (int i = 0; i < getSize(); i++) {
-            String currentValue = getCell(i).getValue();
-            String oldValue = diffRow.getCell(i).updateValue(currentValue);
-            if (oldValue != null) {
-                System.out.println("old value: " + oldValue + "\t" + "new value: " + currentValue);
-                System.out.println(diffRow.getCell(i).getStatus());
-                System.out.println(diffRow.getCell(i).getChangesHistory());
+        if (!equals(oldRow)) {
+            for (int i = 0; i < getSize(); i++) {
+                String currentValue = getCell(i).getValue();
+                String oldValue = diffRow.getCell(i).updateValue(currentValue);
+//                if (oldValue != null) {
+////                    System.out.println("old value: " + oldValue + "\t" + "new value: " + currentValue);
+////                    System.out.println(diffRow.getCell(i).getStatus());
+////                    System.out.println(diffRow.getCell(i).getChangesHistory());
+//                }
             }
+            diffRow.setStatus(Status.CHANGED);
         }
-        diffRow.setStatus(Status.CHANGED);
+
         return diffRow;
+    }
+
+    private void checkRowsSizeEquality(int firstRowSize, int secondRowSize) {
+        if (firstRowSize != secondRowSize) {
+            throw new UnsupportedOperationException("Cannot compare 2 rows with different sizes");
+        }
     }
 
     @Override

@@ -1,3 +1,19 @@
+/*
+ * Copyright  2020  Chamlal.Mohamed
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.twiza.domain;
 
 import java.util.*;
@@ -7,7 +23,7 @@ public class ExcelWorkbook implements EWorkbook {
     private final static String SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE = "EWorkbook cannot contain 2 getSheets() with the same Name";
 
     private String path;
-    private Map<String, ESheet> sheets;
+    private final Map<String, ESheet> sheets;
 
     public ExcelWorkbook() {
         this.sheets = new HashMap<>();
@@ -69,14 +85,11 @@ public class ExcelWorkbook implements EWorkbook {
 
     @Override
     public EWorkbook compare(EWorkbook oldWorkbook) {
-        if (oldWorkbook == null) {
-            throw new NullPointerException("the oldWorkbook cannot be null");
-        }
-        Set<String> allSheets = new HashSet<>(oldWorkbook.getSheets().keySet());
-        allSheets.addAll(getSheets().keySet());
+        Objects.requireNonNull(oldWorkbook, "the oldWorkbook cannot be null");
+        Set<String> allSheets = assembleTwoSets(oldWorkbook.getSheets().keySet(), getSheets().keySet());
         EWorkbook diffWorkbook = new ExcelWorkbook();
         allSheets.forEach(sheetName -> {
-            System.out.println("Sheet to compare is" + "\t" + sheetName);
+//            System.out.println("Sheet to compare is" + "\t" + sheetName);
             assignSheetToCompareWorkbook(oldWorkbook.getSheet(sheetName),
                                          getSheet(sheetName),
                                          diffWorkbook);
@@ -84,13 +97,22 @@ public class ExcelWorkbook implements EWorkbook {
         return diffWorkbook;
     }
 
-    private void assignSheetToCompareWorkbook(ESheet oldSheet, ESheet currentSheet, EWorkbook workbook) {
+    private Set<String> assembleTwoSets(Set<String> set1, Set<String> set2) {
+        Set<String> sumSet = new LinkedHashSet<>(set1);
+        sumSet.addAll(set2);
+        return sumSet;
+    }
 
+    private void assignSheetToCompareWorkbook(ESheet oldSheet, ESheet currentSheet, EWorkbook workbook) {
         if (currentSheet == null) {
             //if current is null than old is not because the key is extracted from one of them
             oldSheet.setStatus(Status.DELETED);
             workbook.addSheet(oldSheet);
-            System.out.println("Sheet " + oldSheet.getName() + "\t" + oldSheet.getStatus());
+//            System.out.println("Sheet " + oldSheet.getName() + "\t" + oldSheet.getStatus());
+        } else if (oldSheet == null) {
+            currentSheet.setStatus(Status.ADDED);
+            workbook.addSheet(currentSheet);
+//            System.out.println("Sheet " + currentSheet.getName() + "\t" + currentSheet.getStatus());
         } else {
             workbook.addSheet(currentSheet.compare(oldSheet));
         }
