@@ -162,7 +162,7 @@ public class ExcelWriter {
                 cell.setCellStyle(changedCellStyle);
                 break;
             default:
-                cell.setCellStyle(defaultRowStyle);
+
         }
     }
 

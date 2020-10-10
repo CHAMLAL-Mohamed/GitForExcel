@@ -10,9 +10,12 @@
 plugins {
     // Apply the java plugin to add support for Java
     id 'java-library'
-//    id 'application'
+    id 'application'
+    id 'maven-publish'
 }
-version = '0.2.1'
+
+group = 'com.chamlal'
+version = '0.2.7'
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -34,16 +37,40 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:2.0.0-beta.5'
 }
 
-
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
 jar {
     manifest {
         attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version)
     }
 }
+publishing {
+    publications {
+        projectLibray(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            // the name of the repository, multiple repositories can be added
+            // if one repository is provided the name can be omitted (default: Maven)
+            name = 'gitForExcelMavenRepo'
+            url = "file://C:/Users/mohamed.chamlal/.m2/repository"
+        }
+    }
+}
 
 
-//application {
-//    // Define the main class for the application.
-//    mainClassName = 'com.twiza.App'
-//}
+application {
+    // Define the main class for the application.
+    mainClassName = 'com.twiza.App'
+}

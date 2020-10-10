@@ -68,8 +68,6 @@ public class ExcelCell implements ECell {
         this.status = DEFAULT_STATUS;
         this.changesHistory = new StringBuilder();
         if (changesHistory != null) {
-            //TODO(1): history should obey to the standard or ignore it:
-            // date&Time+"\t"+"oldValue"+"\t"+user
             //TODO(2): check the necessity to remove adding initial History during construction
             // and use a setter.
             setInitialChangesHistory(changesHistory);

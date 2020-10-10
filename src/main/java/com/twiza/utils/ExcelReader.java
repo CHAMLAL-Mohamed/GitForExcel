@@ -95,6 +95,8 @@ public final class ExcelReader {
     public EWorkbook readWorkbook(String workbookPath, boolean firstRowIsHeaders) throws IOException {
         try (Workbook workbook = createWorkbook(workbookPath)) {
             formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            formulaEvaluator.setIgnoreMissingWorkbooks(true);
+            workbook.setForceFormulaRecalculation(true);
             List<ESheet> tempSheets = StreamSupport.stream(workbook.spliterator(), false)
                                                    .map(Sheet::getSheetName)
                                                    .filter(sheetIsIgnored.negate())
@@ -149,8 +151,31 @@ public final class ExcelReader {
     private ECell readCell(Cell cell) {
         Objects.requireNonNull(cell);
         //evaluate the cell value.
-        formulaEvaluator.evaluate(cell);
-        String value = dataFormatterInstance.formatCellValue(cell, formulaEvaluator);
+        //formulaEvaluator.evaluate(cell);
+        //String value = dataFormatterInstance.formatCellValue(cell, formulaEvaluator);
+        //String value = dataFormatterInstance.formatCellValue(cell);
+        String value;
+        if (cell.getCellType() == CellType.FORMULA) {
+            switch (cell.getCachedFormulaResultType()) {
+                case BOOLEAN:
+                    value = String.valueOf(cell.getBooleanCellValue());
+                    break;
+                case NUMERIC:
+                    value = String.valueOf(cell.getNumericCellValue());
+                    break;
+                case STRING:
+                    value = String.valueOf(cell.getRichStringCellValue());
+                    break;
+                case _NONE:
+                    value = String.valueOf(cell.getRichStringCellValue());
+                    break;
+                default:
+                    value = dataFormatterInstance.formatCellValue(cell);
+            }
+        } else {
+            value = dataFormatterInstance.formatCellValue(cell);
+        }
+
         return new ExcelCell(value);
     }
 

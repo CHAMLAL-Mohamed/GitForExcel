@@ -164,7 +164,6 @@ public class ExcelRow implements ERow {
      *
      * @param position the position from which to remove the cell
      * @return the deleted cell, null if no cell was deleted
-     * @throws IndexOutOfBoundsException, if the position is out of the range
      */
     @Override
     public ECell removeCell(int position) throws IndexOutOfBoundsException {

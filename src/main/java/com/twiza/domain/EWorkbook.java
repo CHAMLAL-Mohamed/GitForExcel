@@ -22,10 +22,10 @@ public interface EWorkbook {
     String SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE = "EWorkbook cannot contain 2 ESheets with the same Name";
 
     /**
-     * some documents
+     * Returns the {@code ESheet} based on the name provided.
      *
-     * @param name
-     * @return
+     * @param name the name of the sheet
+     * @return the sheet with the specified name, null otherwise
      */
     ESheet getSheet(String name);
 

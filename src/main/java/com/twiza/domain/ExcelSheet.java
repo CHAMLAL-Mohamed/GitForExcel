@@ -222,7 +222,7 @@ public class ExcelSheet implements ESheet {
     }
 
     private void checkBoundsBeginEnd(int begin, int end, int length) {
-        if (begin < 0 || end >= rows.size() || begin > end) {
+        if (begin < 0 || end >= length || begin > end) {
             throw new IndexOutOfBoundsException("The provided range is not supported, " +
                                                         "begin " + begin + ", end " +
                                                         end + ", length " + length);
@@ -366,7 +366,8 @@ public class ExcelSheet implements ESheet {
 
     private void deleteColumn(int position) {
         if (headers != null) {
-            headers.remove(position);
+            String removed = headers.remove(position);
+            System.out.println("removing header: " + removed);
         }
         rows.forEach(row -> row.removeCell(position));
         columnsNumber = headers != null ? headers.size() : rows.get(0).getSize();
@@ -387,22 +388,62 @@ public class ExcelSheet implements ESheet {
     }
 
     /**
-     * TODO: 21/09/2020 matchWithTemplate functionality will be added later
+     * Implemented on: 03/10/2020
+     * adjust the current sheet to match the provided template headers, and the mode
+     * In other words, eliminate extra columns, and add missing columns to match the template provided.
+     *
+     * @param headersTemplate the headers to match against
+     * @return this {@link ESheet} with the implemented modifications.
      */
     @Override
-    public ESheet matchWithTemplate(Template template, TemplateMode mode) {
+    public ESheet matchWithTemplate(List<String> headersTemplate, TemplateMode mode) {
+        Objects.requireNonNull(headersTemplate);
+        if (headers == null) {
+            setHeaders(headersTemplate);
+            return this;
+        }
         switch (mode) {
             case MATCH:
-                System.out.println(TemplateMode.MATCH);
+                arrangeColumnsBasedOnTemplate(headersTemplate);
+                deleteExtraColumnsBasedOnTemplate(headersTemplate);
+                //System.out.println(TemplateMode.MATCH);
                 break;
             case CONCAT:
-                System.out.println(TemplateMode.CONCAT);
+                arrangeColumnsBasedOnTemplate(headersTemplate);
+                //System.out.println(TemplateMode.CONCAT);
                 break;
             case SPECIFIC:
-                System.out.println(TemplateMode.SPECIFIC);
-                break;
+                throw new UnsupportedOperationException("not implemented yet");
+            default:
         }
         return this;
+    }
+
+    private void arrangeColumnsBasedOnTemplate(List<String> headersTemplate) {
+        int templateSize = headersTemplate.size();
+        System.out.println("Template size is: " + templateSize);
+        for (int templateCursor = 0; templateCursor < templateSize; templateCursor++) {
+            String headerTemplate = headersTemplate.get(templateCursor);
+            int headerPosition = headers.indexOf(headerTemplate);
+            //System.out.println(" header position is: " + headerPosition);
+            if (headerPosition < 0) {
+                EColumn column = new EColumn(headerTemplate, new ArrayList<>());
+                addColumn(templateCursor, column, true);
+            } else if (headerPosition != templateCursor) {
+                EColumn column = getColumn(headerPosition);
+                deleteColumn(headerPosition);
+                addColumn(templateCursor, column);
+            }
+        }
+    }
+
+    private void deleteExtraColumnsBasedOnTemplate(List<String> headersTemplate) {
+        int templateSize = headersTemplate.size();
+        if (templateSize == columnsNumber) {
+            return;
+        }
+        deleteColumnRange(templateSize, columnsNumber - 1);
+
     }
 
     /**
@@ -431,11 +472,9 @@ public class ExcelSheet implements ESheet {
      *
      * @param newHeaders the headers to assign to the sheet.
      * @return this {@link ESheet} with the implemented modifications.
-     * @throws UnsupportedOperationException, if the size of headers is different
-     *                                        than the size of the already insertedRows
      */
     @Override
-    public ESheet setHeaders(List<String> newHeaders) throws UnsupportedOperationException {
+    public ESheet setHeaders(List<String> newHeaders) {
         if (newHeaders == null) {
             headers = null;
             return this;
@@ -578,30 +617,38 @@ public class ExcelSheet implements ESheet {
     }
 
     /**
+     * Implemented on: 03/10/2020 getColumn functionality will be implemented later
      * Get the {@link EColumn} based on index of the column.
      *
      * @param position of the column in the sheet.
      * @return the EColumn in the provided position.
      * @throws IndexOutOfBoundsException if any of the provided position is out of range
      *                                   in any row instance in this sheet
-     *                                   TODO: 21/09/2020 getColumn functionality will be implemented later
      */
     @Override
     public EColumn getColumn(int position) {
-        return null;
+        EColumn column = new EColumn(headers.get(position), new ArrayList<>());
+        rows.forEach(row -> column.addCell(row.getCell(position)));
+        return column;
     }
 
     /**
+     * Implemented: 03/10/2020
      * Returns a column based on header's name, <code>null</code> otherwise.
      *
      * @param headerName the name of the header
      * @return the associated column to the provided header,
      * return <code>null</code> if the header is not found.
-     * TODO: 21/09/2020 getColumn functionality will be implemented later
      */
     @Override
     public EColumn getColumn(String headerName) {
-        return null;
+        int columnIndex = headers == null ? -1 : headers.indexOf(headerName);
+        if (columnIndex < 0) {
+            return null;
+        }
+        EColumn column = new EColumn(headerName, new ArrayList<>());
+        rows.forEach(row -> column.addCell(row.getCell(columnIndex)));
+        return column;
     }
 
     /**

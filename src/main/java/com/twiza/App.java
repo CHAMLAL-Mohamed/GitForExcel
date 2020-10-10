@@ -20,31 +20,65 @@
 package com.twiza;
 
 
-import com.twiza.domain.EWorkbook;
+import com.twiza.domain.ESheet;
 import com.twiza.utils.ExcelReader;
-import com.twiza.utils.ExcelWriter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class App {
     public static String testFile = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
                                             "plausibilityFile.xlsx";
-    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\old.xlsx";
-    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new.xlsx";
+    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\9837663080OR00-000 Max Wire List.xlsx";
+    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\9837663080OR00-020 Max Wire List.xlsx";
     private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff.xlsx";
+    private static final String[] HEADERS = {"Customer Module/Option", "Customer Module/Option Function",
+            "Module PN", "Revision", "Wire Type", "Wire Customer Name", "Wire Internal Name",
+            "Initial Wire Length[Twisted]", "Final Wire Length", "Wire Color", "Wire Kind",
+            "Wire Cross-Section", "Wire Spec.", "Wire Part no.", "Wire Special Wires",
+            "Multicore Part Number", "Pitch", "From Connector (long name)", "From Connector (Short Name)",
+            "From X Internal name", "Open end_1 [mm]", "From Sequence no.", "From Splice Protection",
+            "From Splice Base Wire", "From Cavity", "From Terminal", "Striping Length (mm)", "From Seal by Terminal",
+            "From Plug", "From Connector Material", "From Connector Coordinate", "From Multiple Wire/Cav",
+            "From Crimping Type", "From Double Crimp. With Wire(s)", "From Wire End Components",
+            "From Eyelet Protection", "To Connector (long name)", "To Connector (Short Name)",
+            "To X Internal name", "Open end_2 [mm]", "To Sequence no.", "To Splice Protection", "To Splice Base Wire",
+            "To Cavity", "To Terminal", "Striping Length (mm)", "To Seal by Terminal", "To Plug", "To Connector Material"
+            , "To Connector Coordinate", "To Multiple Wire/Cav", "To Crimping Type", "To Double Crimp. With Wire(s)",
+            "To Wire End Components", "To Eyelet Protection"};
 
     public static void main(String[] args) {
         try {
-            EWorkbook workbook = ExcelReader.getInstance().readWorkbook(newFilePath, true)
-                                            .compare(ExcelReader.getInstance().readWorkbook(oldFilePath, true));
-            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, workbook);
-//            ESheet oldSheet = ExcelReader.getInstance().readWorkbook(oldFilePath)
-//                                         .getSheet("Tabelle1")
-//                                         .adoptFirstRowAsHeaders()
-//                                         .setKeyIndexes(0);
+            List<String> headers = new ArrayList<>(HEADERS.length);
+            headers.addAll(Arrays.asList(HEADERS));
+            ESheet incTable = ExcelReader.getInstance().readWorkbook("C:\\Users\\mohamed.chamlal\\Desktop\\K0\\Update Plausibility_EK0\\MAIN\\Options_Relations_Table-K0-PPL-F07_2020-Rev10-10-10-2020.xlsx")
+                                         .getSheet("plausibility")
+                                         .deleteRows(0, 2)
+                                         .deleteColumns(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+                                         .adoptFirstRowAsHeaders(true)
+                                         .setKeyIndexes(0);
+            System.out.println(incTable);
+
 //            ESheet newSheet = ExcelReader.getInstance().readWorkbook(newFilePath)
-//                                         .getSheet("Tabelle1")
-//                                         .adoptFirstRowAsHeaders()
-//                                         .setKeyIndexes(0);
-//            ESheet diffSheet = newSheet.compare(oldSheet);
+//                                         .getSheet("Report(Draft)")
+//                                         .adoptFirstRowAsHeaders(true)
+//                                         .setKeyIndexes(2, 5)
+//                                         .matchWithTemplate(headers, ESheet.TemplateMode.MATCH);
+//            ESheet oldSheet = ExcelReader.getInstance().readWorkbook(oldFilePath)
+//                                         .getSheet("Report(Draft)")
+//                                         .adoptFirstRowAsHeaders(true)
+//                                         .matchWithTemplate(headers, ESheet.TemplateMode.MATCH)
+//                                         .setKeyIndexes(2, 5);
+//            System.out.println("Old sheet headers-------------------------");
+//            System.out.println(oldSheet.getHeaders());
+//            System.out.println("New sheet headers-------------------------");
+//            System.out.println(newSheet.getHeaders());
+//            System.out.println(oldSheet.getHeaders().equals(newSheet.getHeaders()));
+//            EWorkbook workbook = new ExcelWorkbook();
+//            workbook.addSheet(newSheet.compare(oldSheet));
+//            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, workbook);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

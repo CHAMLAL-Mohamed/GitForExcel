@@ -188,12 +188,14 @@ public interface ESheet {
     ESheet deleteEmptyColumns();
 
     /**
-     * TODO: 21/09/2020 functionality will be added later
+     * adjust the current sheet to match the provided template headers, and the mode
+     * In other words, eliminate extra columns, and add missing columns to match the template provided.
      *
-     * @param template the template to compare with
+     * @param template template the headers to match against
+     * @param mode     check {@link TemplateMode}
      * @return this {@link ESheet} with the implemented modifications.
      */
-    ESheet matchWithTemplate(Template template, TemplateMode mode);
+    ESheet matchWithTemplate(List<String> template, TemplateMode mode);
 
     /**
      * Sets the  indexes of the key, in case of simple key it will be one index, otherwise an array of indexes,
@@ -209,10 +211,9 @@ public interface ESheet {
     /**
      * Assigns a list of headers to the sheet,
      *
-     * @param newHeaders the headers to assign to the sheet.
+     * @param newHeaders the headers to assign to the sheet, the {@code newHeaders} size
+     *                   should be equal to the columns number in this sheet
      * @return this {@link ESheet} with the implemented modifications.
-     * @throws UnsupportedOperationException, if the size of headers is different
-     *                                        than the size of the already insertedRows
      */
     ESheet setHeaders(List<String> newHeaders);
 
@@ -229,6 +230,7 @@ public interface ESheet {
      * set a new Status for this element, if it's applicable
      *
      * @param newStatus the new Status to be applied to this element
+     * @return this {@link ESheet} with the implemented modifications.
      * @throws UnsupportedStatusChangeException if the new status cannot be applied
      *                                          to the element
      */

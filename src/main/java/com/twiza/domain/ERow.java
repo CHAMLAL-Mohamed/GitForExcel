@@ -86,9 +86,9 @@ public interface ERow {
     /**
      * Remove cell from the given position
      *
-     * @param position the position from which to remove the cell
+     * @param position the position from which to remove the cell,
+     *                 it should be withing the range of the row
      * @return the deleted cell, nut if no cell was deleted
-     * @throws IndexOutOfBoundsException, if the position is out of the range
      */
     ECell removeCell(int position) throws IndexOutOfBoundsException;
 
