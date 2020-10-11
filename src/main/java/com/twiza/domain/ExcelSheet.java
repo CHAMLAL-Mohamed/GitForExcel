@@ -21,6 +21,7 @@ import com.twiza.exceptions.SheetWithInconsistentDataException;
 import com.twiza.exceptions.UnsupportedStatusChangeException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ExcelSheet implements ESheet {
     private final static String DELETING_KEY_COLUMN_EXCEPTION_MESSAGE = "You cannot delete a column, that compose the key please change keyColumns first. position is: ";
@@ -367,7 +368,7 @@ public class ExcelSheet implements ESheet {
     private void deleteColumn(int position) {
         if (headers != null) {
             String removed = headers.remove(position);
-            System.out.println("removing header: " + removed);
+            // System.out.println("removing header: " + removed);
         }
         rows.forEach(row -> row.removeCell(position));
         columnsNumber = headers != null ? headers.size() : rows.get(0).getSize();
@@ -404,22 +405,48 @@ public class ExcelSheet implements ESheet {
         }
         switch (mode) {
             case MATCH:
-                arrangeColumnsBasedOnTemplate(headersTemplate);
-                deleteExtraColumnsBasedOnTemplate(headersTemplate);
-                //System.out.println(TemplateMode.MATCH);
+                matchColumnsBasedOnTemplate(headersTemplate);
                 break;
             case CONCAT:
-                arrangeColumnsBasedOnTemplate(headersTemplate);
+                concatColumnsBasedOnTemplate(headersTemplate);
                 //System.out.println(TemplateMode.CONCAT);
                 break;
             case SPECIFIC:
-                throw new UnsupportedOperationException("not implemented yet");
+                specificColumnsBasedOnTemplate(headersTemplate);
             default:
         }
         return this;
     }
 
-    private void arrangeColumnsBasedOnTemplate(List<String> headersTemplate) {
+    private void specificColumnsBasedOnTemplate(List<String> headersTemplate) {
+        concatColumnsBasedOnTemplate(headersTemplate);
+        deleteExtraColumnsBasedOnTemplate(headersTemplate);
+    }
+
+    private void matchColumnsBasedOnTemplate(List<String> headersTemplate) {
+        //get matching headers(duplicate headers are removed)
+        List<String> matchedHeaders = headersTemplate.stream()
+                                                     .distinct()
+                                                     .filter(headers::contains)
+                                                     .collect(Collectors.toCollection(ArrayList::new));
+        //get the size of matching headers
+        int matchedHeadersSize = matchedHeaders.size();
+        System.out.println("MatchedHeaders size is: " + matchedHeadersSize);
+        //go through the matching headers, and arrange the headers of this sheet to have the same sequence as matching headers
+        for (int templateCursor = 0; templateCursor < matchedHeadersSize; templateCursor++) {
+            String headerTemplate = matchedHeaders.get(templateCursor);
+            int headerPosition = headers.indexOf(headerTemplate);
+            if (headerPosition != -1 && headerPosition != templateCursor) {
+                EColumn column = getColumn(headerPosition);
+                deleteColumn(headerPosition);
+                addColumn(templateCursor, column);
+            }
+        }
+        // delete remaining columns that are not part of the matching headers
+        deleteExtraColumnsBasedOnTemplate(matchedHeaders);
+    }
+
+    private void concatColumnsBasedOnTemplate(List<String> headersTemplate) {
         int templateSize = headersTemplate.size();
         System.out.println("Template size is: " + templateSize);
         for (int templateCursor = 0; templateCursor < templateSize; templateCursor++) {
