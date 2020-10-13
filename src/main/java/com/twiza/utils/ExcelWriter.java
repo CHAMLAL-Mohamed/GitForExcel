@@ -63,7 +63,7 @@ public class ExcelWriter {
             setSheetTabColor(sheet, eSheet);
             AtomicInteger rowIndex = new AtomicInteger(0);
             writeHeadersToSheet(eSheet.getHeaders(), sheet, rowIndex.getAndIncrement());
-            eSheet.getUniqueData().forEach((key, value) -> writeERowToSheet(value, sheet, rowIndex.getAndIncrement()));
+            eSheet.getData().forEach(row -> writeERowToSheet(row, sheet, rowIndex.getAndIncrement()));
         }
         FileOutputStream outputStream = new FileOutputStream(workbookPath);
         workbook.write(outputStream);
