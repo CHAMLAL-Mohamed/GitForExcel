@@ -34,6 +34,12 @@ public class ExcelWorkbook implements EWorkbook {
         this.sheets = assignSheets(sheetsList);
     }
 
+    public ExcelWorkbook(EWorkbook workbook) {
+        this.path = workbook.getWorkbookPath();
+        this.sheets = new HashMap<>(workbook.getSheets().size());
+        workbook.getSheets().forEach((key, value) -> this.sheets.putIfAbsent(key, new ExcelSheet(value)));
+    }
+
     private Map<String, ESheet> assignSheets(List<ESheet> sheetsList) {
         final Map<String, ESheet> tempSheetsMap = new HashMap<>();
         sheetsList.forEach(sheet -> addSheetToSheetsMap(sheet, tempSheetsMap));

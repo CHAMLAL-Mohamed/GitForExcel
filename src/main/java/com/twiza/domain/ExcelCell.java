@@ -74,6 +74,15 @@ public class ExcelCell implements ECell {
         }
     }
 
+    public ExcelCell(ECell cell) {
+        this.value = cell.getValue();
+        this.status = cell.getStatus();
+        this.changesHistory = new StringBuilder();
+        if (cell.getChangesHistory() != null) {
+            setInitialChangesHistory(cell.getChangesHistory());
+        }
+    }
+
     /**
      * Return the current {@code status } of this cell.
      *

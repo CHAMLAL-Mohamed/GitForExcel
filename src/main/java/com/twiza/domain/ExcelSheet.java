@@ -91,6 +91,15 @@ public class ExcelSheet implements ESheet {
         this.status = DEFAULT_STATUS;
     }
 
+    public ExcelSheet(ESheet sheet) {
+        this.name = sheet.getName();
+        setHeaders(headers);
+        this.rows = new ArrayList<>(sheet.getData().size());
+        sheet.getData().forEach(row -> rows.add(new ExcelRow(row)));//avoid passing external reference of lists.
+        setKeyIndexes(sheet.getKeysIndexes());
+        this.status = sheet.getStatus();
+    }
+
 
     /**
      * Appends a row at the end of this ESheet.
@@ -722,14 +731,14 @@ public class ExcelSheet implements ESheet {
      */
     @Override
     public ESheet compare(ESheet old) {
+        ESheet diffSheet = new ExcelSheet(this);
         if (!(old instanceof ExcelSheet)) {
-            setStatus(Status.ADDED);
-            return this;
+            diffSheet.setStatus(Status.ADDED);
+            return diffSheet;
         }
         checkIfHeadersMatch(getHeaders(), old.getHeaders());
-        ESheet diffSheet = new ExcelSheet(getName(), getHeaders()).setKeyIndexes(getKeysIndexes());
         Set<String> allRowsKeys = assembleTwoSets(old.getUniqueData().keySet(), getUniqueData().keySet());
-        allRowsKeys.forEach(key -> assignRowToCompareSheet(old.getRow(key), getRow(key), diffSheet));
+        allRowsKeys.forEach(key -> assignRowToCompareSheet(old.getRow(key), diffSheet.getRow(key), diffSheet));
         return diffSheet;
     }
 
@@ -745,25 +754,25 @@ public class ExcelSheet implements ESheet {
         return sumSet;
     }
 
-    private void assignRowToCompareSheet(ERow oldRow, ERow currentRow, ESheet sheet) {
+    private void assignRowToCompareSheet(ERow oldRow, ERow currentRow, ESheet diffSheet) {
         if (currentRow == null) {
+            ERow oldRowCopy = new ExcelRow(oldRow);
             //if current is null than old is not because the key is extracted from one of them
-            oldRow.setStatus(Status.DELETED);
-            oldRow.getCells().forEach(cell -> cell.setStatus(Status.DELETED));
+            oldRowCopy.setStatus(Status.DELETED);
+            oldRowCopy.getCells().forEach(cell -> cell.setStatus(Status.DELETED));
 //            System.out.println("row " + oldRow + "\t" + oldRow.getStatus());
-            sheet.addRow(oldRow);
+            diffSheet.addRow(oldRowCopy);
         } else if (oldRow == null) {
             currentRow.setStatus(Status.ADDED);
             currentRow.getCells().forEach(cell -> cell.setStatus(Status.ADDED));
 //            System.out.println("row " + currentRow + "\t" + currentRow.getStatus());
-            sheet.addRow(currentRow);
 
         } else {
             ERow row = currentRow.compare(oldRow);
-            if (!row.getStatus().equals(Status.NEW) && sheet.getStatus().equals(Status.NEW)) {
-                sheet.setStatus(Status.CHANGED);
+            if (!row.getStatus().equals(Status.NEW) && diffSheet.getStatus().equals(Status.NEW)) {
+                diffSheet.setStatus(Status.CHANGED);
             }
-            sheet.addRow(row);
+            diffSheet.addRow(row);
         }
     }
 

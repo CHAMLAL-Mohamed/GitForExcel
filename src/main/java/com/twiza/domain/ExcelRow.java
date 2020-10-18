@@ -63,6 +63,12 @@ public class ExcelRow implements ERow {
         this.status = DEFAULT_STATUS;
     }
 
+    public ExcelRow(ERow row) {
+        this.cells = new ArrayList<>(row.getCells().size());
+        row.getCells().forEach(cell -> cells.add(new ExcelCell(cell)));
+        this.status = row.getStatus();
+    }
+
     /**
      * Return the current {@code status } of this row.
      *
@@ -223,13 +229,15 @@ public class ExcelRow implements ERow {
      */
     @Override
     public ERow compare(ERow oldRow) {
+        ERow diffRow;
         if (!(oldRow instanceof ExcelRow)) {
-            setStatus(Status.ADDED);
-            return this;
+            diffRow = new ExcelRow(this);
+            diffRow.setStatus(Status.ADDED);
+            return diffRow;
         }
         checkRowsSizeEquality(getSize(), oldRow.getSize());
-        ERow diffRow = new ExcelRow(oldRow.getCells());
-        if (!equals(oldRow)) {
+        diffRow = new ExcelRow(oldRow);
+        if (!equals(diffRow)) {
             for (int i = 0; i < getSize(); i++) {
                 String currentValue = getCell(i).getValue();
                 String oldValue = diffRow.getCell(i).updateValue(currentValue);
