@@ -42,7 +42,7 @@ public class ExcelSheet implements ESheet {
     /**
      * The name of the sheet.
      */
-    private final String name;
+    private String name;
     private int columnsNumber;
     private int rowsNumber;
     private int[] keyIndexes;
@@ -561,6 +561,11 @@ public class ExcelSheet implements ESheet {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

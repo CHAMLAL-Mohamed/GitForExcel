@@ -244,6 +244,11 @@ public interface ESheet {
     String getName();
 
     /**
+     * Seet sheetName
+     */
+    void setName(String name);
+
+    /**
      * Returns the current status of this sheet.
      *
      * @return the {@code Status} of this sheet, default value is {@code Status.NEW}
