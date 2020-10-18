@@ -84,8 +84,8 @@ public class ExcelSheet implements ESheet {
     public ExcelSheet(String name, List<ERow> rows, List<String> headers, int... keyIndexes) throws UnsupportedOperationException {
         this.name = Objects.requireNonNull(name, "Name of the sheet cannot be null").toLowerCase();
         Objects.requireNonNull(rows);
-        setHeaders(headers);
         this.rows = new ArrayList<>();
+        setHeaders(headers);
         rows.forEach(this::addRow);//avoid passing external reference of lists.
         setKeyIndexes(keyIndexes);
         this.status = DEFAULT_STATUS;
@@ -93,7 +93,7 @@ public class ExcelSheet implements ESheet {
 
     public ExcelSheet(ESheet sheet) {
         this.name = sheet.getName();
-        setHeaders(headers);
+        this.headers = new ArrayList<>(sheet.getHeaders());
         this.rows = new ArrayList<>(sheet.getData().size());
         sheet.getData().forEach(row -> rows.add(new ExcelRow(row)));//avoid passing external reference of lists.
         setKeyIndexes(sheet.getKeysIndexes());
@@ -594,7 +594,10 @@ public class ExcelSheet implements ESheet {
      */
     @Override
     public List<String> getHeaders() {
-        return headers;
+        if (headers == null) {
+            return null;
+        }
+        return Collections.unmodifiableList(headers);
     }
 
     /**

@@ -53,7 +53,7 @@ public class ESheetTests {
     //Construction Tests
     @Test(expected = NullPointerException.class)
     public void sheetThrowsNullExceptionIfNameIsNull() {
-        new ExcelSheet(null);
+        new ExcelSheet((String) null);
     }
 
     @Test
@@ -62,6 +62,8 @@ public class ESheetTests {
         Assert.assertEquals(sheet.getName(), sheetName.toLowerCase());
         Assert.assertNull(sheet.getHeaders());
         Assert.assertTrue(sheet.getData().isEmpty());
+
+
     }
 
     @Test

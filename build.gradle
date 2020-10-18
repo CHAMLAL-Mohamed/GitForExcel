@@ -15,7 +15,7 @@ plugins {
 }
 
 group = 'com.chamlal'
-version = '0.3.0'
+version = '0.3.1'
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.

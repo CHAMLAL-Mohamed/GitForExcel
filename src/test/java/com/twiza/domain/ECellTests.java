@@ -21,8 +21,7 @@ public class ECellTests {
      */
     @Test(expected = NullPointerException.class)
     public void cellThrowsExceptionIfValueIsNull() {
-        new ExcelCell(null);
-
+        new ExcelCell((String) null);
     }
 
     @Test

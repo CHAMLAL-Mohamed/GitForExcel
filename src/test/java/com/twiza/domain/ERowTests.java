@@ -49,7 +49,7 @@ public class ERowTests {
     @Test
     public void rowThrowsNullExceptionIfNullIsProvidedDuringConstruction() {
         exceptionRule.expect(NullPointerException.class);
-        new ExcelRow(null);
+        new ExcelRow((List<ECell>) null);
     }
 
     @Test

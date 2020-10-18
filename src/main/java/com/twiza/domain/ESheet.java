@@ -244,7 +244,9 @@ public interface ESheet {
     String getName();
 
     /**
-     * Seet sheetName
+     * Set name of the sheet.
+     *
+     * @param name the new name of the sheet
      */
     void setName(String name);
 
