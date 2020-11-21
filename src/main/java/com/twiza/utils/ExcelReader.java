@@ -18,6 +18,7 @@ package com.twiza.utils;
 
 import com.twiza.domain.*;
 import com.twiza.exceptions.WorkbookWithInvalidFormatException;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
@@ -25,17 +26,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class ExcelReader {
+
+    private static final Logger logger = Logger.getLogger(String.valueOf(ExcelReader.class));
+
+    private static final boolean FIRST_ROW_IS_NOT_HEADER = false;
     /**
      * a static instance of this class to ensure Singleton.
      */
@@ -68,12 +72,67 @@ public final class ExcelReader {
         return INSTANCE;
     }
 
+    EWorkbook read(Path workbookPath) {
+        //TODO read the workbook provided, and use default values.
+        return read(workbookPath, null);
+    }
+
+    EWorkbook read(Path workbookPath, List<String> ignoredSheetsNames) {
+        try (Workbook workbook = createWorkbook(workbookPath)) {
+            formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            List<ESheet> eSheets = retrieveSheets(workbook.spliterator(), ignoredSheetsNames);
+            return new ExcelWorkbook(workbookPath.toString(), eSheets);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            //add log here
+            e.printStackTrace();
+        } catch (EncryptedDocumentException e) {
+            //add another log here and decide if we need to cascade the error or handle it in this level
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<ESheet> retrieveSheets(Spliterator<Sheet> sheetSpliterator) {
+        return retrieveSheets(sheetSpliterator, null);
+    }
+
+    private List<ESheet> retrieveSheets(Spliterator<Sheet> sheetSpliterator, List<String> ignoredPatterns) {
+
+        return StreamSupport.stream(sheetSpliterator, false)
+                            .filter(sheetShouldBeRead(ignoredPatterns))
+                            .map(this::readSheet)
+                            .map(sheet -> sheet.adoptFirstRowAsHeaders(FIRST_ROW_IS_NOT_HEADER))
+                            .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private Predicate<Sheet> sheetShouldBeRead(List<String> ignoredPatterns) {
+        return ((Predicate<Sheet>) sheet -> Optional.ofNullable(ignoredPatterns).orElseGet(ArrayList::new)
+                                                    .stream()
+                                                    .map(Pattern::compile)
+                                                    .map(pattern -> pattern.matcher(sheet.getSheetName()))
+                                                    .anyMatch(Matcher::find)).negate();
+
+    }
+
+    /**
+     * create a workbook in readOnly mode from the specified path
+     *
+     * @param workbookPath the path of the workbook to create
+     * @return an instance of {@link Workbook}
+     * @throws IOException if the file wasn't found or was enable to be opened.
+     */
+    private Workbook createWorkbook(Path workbookPath) throws IOException {
+        return WorkbookFactory.create(workbookPath.toFile(), null, true);
+    }
+
     /**
      * Reads excel workbook and convert it into {@link EWorkbook} instance
      *
      * @param workbookPath the path of the workbook to be read
      * @return an instance of {@link EWorkbook} that contains the workbook's data
-     * @throws IOException                        if the path provided does't exist or is not an excel file.
+     * @throws IOException                        if the path provided doesn't exist or is not an excel file.
      * @throws WorkbookWithInvalidFormatException if the input file is corrupted(files with invalid format)
      */
     public EWorkbook readWorkbook(String workbookPath) throws IOException {
@@ -119,7 +178,6 @@ public final class ExcelReader {
     }
 
     private final Predicate<String> sheetIsIgnored = new Predicate<String>() {
-
         @Override
         public boolean test(String sheetName) {
             return sheetsToIgnorePatterns.stream()

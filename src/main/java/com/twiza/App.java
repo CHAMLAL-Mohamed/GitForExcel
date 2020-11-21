@@ -33,31 +33,28 @@ public class App {
     private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\9837663080OR00-020 Max Wire List.xlsx";
     private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff-NEW.xlsx";
 
+
+    //IDEA: redesign Reading functionality to be more versatile and provide more capabilities via configurations.
+    //TODO(1):implement a function that reads workbook with no parameters
+    //TODO(2):implement a function that reads workbook and ignore sheets specified an an ignore list( ignore a pattern of sheets)
+    //TODO(3):implement a function that reads workbook with ignore sheets, and specific parameters for isFirstRow a head, keys, templates, templates mode, delete columns, delete rows...........
+    //TODO(4):
+
     public static void main(String[] args) {
         try {
-
-
             ESheet newSheet = ExcelReader.getInstance().readWorkbook(newFilePath)
                                          .getSheet("Report(Draft)")
                                          .adoptFirstRowAsHeaders(true)
-                                         .setKeyIndexes(2,5);
+                                         .setKeyIndexes(2, 5);
             ESheet oldSheet = ExcelReader.getInstance().readWorkbook(oldFilePath)
                                          .getSheet("Report(Draft)")
                                          .adoptFirstRowAsHeaders(true)
-                                         .setKeyIndexes(2,5);
+                                         .setKeyIndexes(2, 5);
             oldSheet.matchWithTemplate(newSheet.getHeaders(), ESheet.TemplateMode.CONCAT);
             newSheet.matchWithTemplate(oldSheet.getHeaders(), ESheet.TemplateMode.CONCAT);
             EWorkbook workbook = new ExcelWorkbook();
             workbook.addSheet(newSheet.compare(oldSheet));
             ExcelWriter.getInstance().writeToWorkbook(diffFilePath, workbook);
-//            System.out.println("Old sheet headers-------------------------");
-//            System.out.println(oldSheet.getHeaders());
-//            System.out.println("New sheet headers-------------------------");
-//            System.out.println(newSheet.getHeaders());
-//            System.out.println(oldSheet.getHeaders().equals(newSheet.getHeaders()));
-//            EWorkbook workbook = new ExcelWorkbook();
-//            workbook.addSheet(newSheet.compare(oldSheet));
-//            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, workbook);
 
         } catch (Exception e) {
             e.printStackTrace();
