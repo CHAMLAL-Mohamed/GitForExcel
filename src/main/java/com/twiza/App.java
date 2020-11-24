@@ -50,7 +50,7 @@ public class App {
 //                                         .adoptFirstRowAsHeaders(true)
 //                                         .setKeyIndexes(2, 5);
             List<String> patternToIgnore = new ArrayList<>();
-            patternToIgnore.add("**\\\\Sheet*");
+            patternToIgnore.add("**Sheet*");
             EWorkbook oldWorkbook = ExcelReader.getInstance().read(Paths.get(oldFilePath), patternToIgnore, true);
             ExcelWriter.getInstance().writeToWorkbook(diffFilePath, oldWorkbook);
 
