@@ -16,6 +16,7 @@
 
 package com.twiza.domain;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 public interface EWorkbook {
@@ -31,7 +32,7 @@ public interface EWorkbook {
 
     ESheet getSheet(int index);
 
-    String getWorkbookPath();
+    Path getWorkbookPath();
 
     Map<String, ESheet> getSheets();
 

@@ -10,6 +10,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class EWorkbookTests {
         for (int i = 0; i < sheetsNumber; i++) {
             sheets.add(mockESheet("Name" + i));
         }
-        EWorkbook workbook = new ExcelWorkbook(workbookName, sheets);
+        EWorkbook workbook = new ExcelWorkbook(Paths.get(workbookName), sheets);
         Assert.assertEquals(sheetsNumber, workbook.getSize());
     }
 
@@ -50,7 +51,7 @@ public class EWorkbookTests {
         }
         exceptionRule.expect(UnsupportedOperationException.class);
         exceptionRule.expectMessage(EWorkbook.SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE);
-        new ExcelWorkbook(workbookName, sheets);
+        new ExcelWorkbook(Paths.get(workbookName), sheets);
     }
 
 

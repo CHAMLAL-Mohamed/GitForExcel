@@ -62,7 +62,9 @@ public class ExcelWriter {
             XSSFSheet sheet = workbook.createSheet(eSheet.getName());
             setSheetTabColor(sheet, eSheet);
             AtomicInteger rowIndex = new AtomicInteger(0);
-            writeHeadersToSheet(eSheet.getHeaders(), sheet, rowIndex.getAndIncrement());
+            if (eSheet.getHeaders() != null && !eSheet.getHeaders().isEmpty()){
+                writeHeadersToSheet(eSheet.getHeaders(), sheet, rowIndex.getAndIncrement());
+            }
             eSheet.getData().forEach(row -> writeERowToSheet(row, sheet, rowIndex.getAndIncrement()));
         }
         FileOutputStream outputStream = new FileOutputStream(workbookPath);
@@ -135,7 +137,7 @@ public class ExcelWriter {
             Cell cell = writeValueToCell(eCell.getValue(), row, columnIndex++);
             if (eRow.getStatus().equals(Status.CHANGED) && eCell.getStatus().equals(Status.NEW)) {
                 cell.setCellStyle(changedRowStyle);
-            }else {
+            } else {
                 updateCellColor(cell, eCell);
             }
 

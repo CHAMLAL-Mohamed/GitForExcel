@@ -16,5 +16,79 @@
 
 package com.twiza.domain;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.util.List;
+
+/**
+ * Template class store are configuration needed to setup a sheet
+ */
 public class Template {
+    /**
+     * Pattern that will be matched with sheets for
+     */
+    private final String name;
+    private List<String> matchingHeaders;
+    private MatchingPolicy matchingPolicy;
+    private boolean isFirstRowHeader;
+    private int[] deleteRows;
+    private int[] deleteColumns;
+    private int[] keyColumns;
+
+    public Template(String name) {
+        FileSystems.getDefault().getPathMatcher("").matches(Paths.get("fff"));
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getMatchingHeaders() {
+        return matchingHeaders;
+    }
+
+    public void setMatchingHeaders(List<String> matchingHeaders) {
+        this.matchingHeaders = matchingHeaders;
+    }
+
+    public MatchingPolicy getMatchingPolicy() {
+        return matchingPolicy;
+    }
+
+    public void setMatchingPolicy(MatchingPolicy matchingPolicy) {
+        this.matchingPolicy = matchingPolicy;
+    }
+
+    public boolean isFirstRowHeader() {
+        return isFirstRowHeader;
+    }
+
+    public void setFirstRowHeader(boolean firstRowHeader) {
+        isFirstRowHeader = firstRowHeader;
+    }
+
+    public int[] getDeleteRows() {
+        return deleteRows;
+    }
+
+    public void setDeleteRows(int[] deleteRows) {
+        this.deleteRows = deleteRows;
+    }
+
+    public int[] getDeleteColumns() {
+        return deleteColumns;
+    }
+
+    public void setDeleteColumns(int[] deleteColumns) {
+        this.deleteColumns = deleteColumns;
+    }
+
+    public int[] getKeyColumns() {
+        return keyColumns;
+    }
+
+    public void setKeyColumns(int[] keyColumns) {
+        this.keyColumns = keyColumns;
+    }
 }

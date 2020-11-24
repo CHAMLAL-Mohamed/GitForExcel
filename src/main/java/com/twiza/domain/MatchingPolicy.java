@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.twiza.utils;
+package com.twiza.domain;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * @author Mohamed.Chamlal, 21/11/2020
- */
-public class EWorkbookConfiguration {
-    boolean isFirstRowAHeader = false;
-    Map<String, List<String>> sheetTemplates;
+public enum MatchingPolicy {
+    CONCAT,
+    MATCH,
+    SPECIFIC
 }

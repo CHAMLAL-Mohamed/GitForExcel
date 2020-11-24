@@ -20,18 +20,20 @@
 package com.twiza;
 
 
-import com.twiza.domain.ESheet;
 import com.twiza.domain.EWorkbook;
-import com.twiza.domain.ExcelWorkbook;
 import com.twiza.utils.ExcelReader;
 import com.twiza.utils.ExcelWriter;
+
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class App {
     public static String testFile = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
                                             "plausibilityFile.xlsx";
-    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\9837663080OR00-000 Max Wire List.xlsx";
-    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\9837663080OR00-020 Max Wire List.xlsx";
-    private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff-NEW.xlsx";
+    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff-NEW.xlsx";
+    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\Max Wire List2.xlsx";
+    private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff2-NEW.xlsx";
 
 
     //IDEA: redesign Reading functionality to be more versatile and provide more capabilities via configurations.
@@ -42,19 +44,15 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            ESheet newSheet = ExcelReader.getInstance().readWorkbook(newFilePath)
-                                         .getSheet("Report(Draft)")
-                                         .adoptFirstRowAsHeaders(true)
-                                         .setKeyIndexes(2, 5);
-            ESheet oldSheet = ExcelReader.getInstance().readWorkbook(oldFilePath)
-                                         .getSheet("Report(Draft)")
-                                         .adoptFirstRowAsHeaders(true)
-                                         .setKeyIndexes(2, 5);
-            oldSheet.matchWithTemplate(newSheet.getHeaders(), ESheet.TemplateMode.CONCAT);
-            newSheet.matchWithTemplate(oldSheet.getHeaders(), ESheet.TemplateMode.CONCAT);
-            EWorkbook workbook = new ExcelWorkbook();
-            workbook.addSheet(newSheet.compare(oldSheet));
-            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, workbook);
+//            ESheet newSheet = ExcelReader.getInstance()
+//                                         .read(Paths.get(newFilePath))
+//                                         .getSheet("Report(Draft)")
+//                                         .adoptFirstRowAsHeaders(true)
+//                                         .setKeyIndexes(2, 5);
+            List<String> patternToIgnore = new ArrayList<>();
+            patternToIgnore.add("**\\\\Sheet*");
+            EWorkbook oldWorkbook = ExcelReader.getInstance().read(Paths.get(oldFilePath), patternToIgnore, true);
+            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, oldWorkbook);
 
         } catch (Exception e) {
             e.printStackTrace();

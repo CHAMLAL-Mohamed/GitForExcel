@@ -16,20 +16,21 @@
 
 package com.twiza.domain;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExcelWorkbook implements EWorkbook {
     private final static String SHEETS_WITH_SAME_NAME_EXCEPTION_MESSAGE = "EWorkbook cannot contain 2 getSheets() with the same Name";
 
-    private String path;
+    private Path path;
     private final Map<String, ESheet> sheets;
 
     public ExcelWorkbook() {
         this.sheets = new HashMap<>();
     }
 
-    public ExcelWorkbook(String path, List<ESheet> sheetsList) {
+    public ExcelWorkbook(Path path, List<ESheet> sheetsList) {
         this.path = path;
         this.sheets = assignSheets(sheetsList);
     }
@@ -63,7 +64,7 @@ public class ExcelWorkbook implements EWorkbook {
     }
 
     @Override
-    public String getWorkbookPath() {
+    public Path getWorkbookPath() {
         return path;
     }
 
