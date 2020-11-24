@@ -6,4 +6,4 @@ build
 out/
 .idea/
 local.properties
-
+src/main/resources/configuration
