@@ -31,8 +31,8 @@ public class Template {
     private List<String> matchingHeaders;
     private MatchingPolicy matchingPolicy;
     private boolean isFirstRowHeader;
-    private int[] deleteRows;
     private int[] deleteColumns;
+    private int[] deleteRows;
     private int[] keyColumns;
 
     public Template(String name) {

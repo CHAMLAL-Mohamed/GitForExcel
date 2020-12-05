@@ -17,7 +17,20 @@
 package com.twiza.domain;
 
 public enum MatchingPolicy {
-    CONCAT,
-    MATCH,
-    SPECIFIC
+    /**
+     * keep only the matching columns between template and sheet
+     */
+    INNER_MATCH,
+    /**
+     * concat unique headers between template and sheet
+     */
+    OUTER_MATCH,
+    /**
+     * keep only template columns( add them if missing)
+     */
+    TEMPLATE_MATCH,
+    /**
+     * if template contains columns that are missing in sheet, throw an exception
+     */
+    TEMPLATE_FORCED
 }
