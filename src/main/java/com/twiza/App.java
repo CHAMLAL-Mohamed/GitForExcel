@@ -20,39 +20,48 @@
 package com.twiza;
 
 
-import com.twiza.domain.EWorkbook;
-import com.twiza.utils.ExcelReader;
-import com.twiza.utils.ExcelWriter;
+import com.twiza.utils.FolderToExcelReader;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    public static String testFile = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\" +
-                                            "plausibilityFile.xlsx";
-    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff-NEW.xlsx";
+    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new.xlsx";
     private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\Max Wire List2.xlsx";
     private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff2-NEW.xlsx";
 
 
     //IDEA: redesign Reading functionality to be more versatile and provide more capabilities via configurations.
-    //TODO(1):implement a function that reads workbook with no parameters
-    //TODO(2):implement a function that reads workbook and ignore sheets specified an an ignore list( ignore a pattern of sheets)
-    //TODO(3):implement a function that reads workbook with ignore sheets, and specific parameters for isFirstRow a head, keys, templates, templates mode, delete columns, delete rows...........
-    //TODO(4):
-
+    //IDEA: if order during comparison doesn't matter, sort the entire rows( as each row is a string) then start comparing.
+    //IDEA: this version will include only workbook with cached sheet values, no style, formula, external links are supported
+    //BRAINSTORMING: workbook can be represented as a folder with special tag(excelFile),
+    // that contains sheet as textFiles inside( check if styles
     public static void main(String[] args) {
         try {
-//            ESheet newSheet = ExcelReader.getInstance()
-//                                         .read(Paths.get(newFilePath))
-//                                         .getSheet("Report(Draft)")
-//                                         .adoptFirstRowAsHeaders(true)
-//                                         .setKeyIndexes(2, 5);
+            /**
+             *  ignore patterns can be divided in 4 categories:
+             *  componentName and file
+             *  componentName and folder
+             *  @see {@link C:/Users/MOHAME~1.CHA/AppData/Local/Temp/progit.pdf} page 37
+             *  @see {@link https://stackoverflow.com/questions/52389140/global-git-ignore-with-absolute-path/52390413#52390413}
+             *  @see {@link https://stackoverflow.com/questions/58758204/git-not-ignoring-sub-directories/58758400#58758400}
+             *  relativePath and folder
+             *  relativePath and file
+             *  So if we have a leading slash: append the root folder and match with absolutePaths
+             *  if there is no leading slash : match starting from current directory
+             */
             List<String> patternToIgnore = new ArrayList<>();
-            patternToIgnore.add("**Sheet*");
-            EWorkbook oldWorkbook = ExcelReader.getInstance().read(Paths.get(oldFilePath), patternToIgnore, true);
-            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, oldWorkbook);
+            patternToIgnore.add("*\\Sheet*");
+//            EWorkbook oldWorkbook = ExcelReader.getInstance().read(Paths.get(oldFilePath), patternToIgnore, false);
+//            oldWorkbook.getSheets()
+//                       .values()
+//                       .stream()
+//                       .filter(sheet -> sheet.getName().equals("report(draft)"))
+//                       .forEach(eSheet -> eSheet.adoptFirstRowAsHeaders(true));
+//            ExcelToFolderWriter.getInstance().write(oldWorkbook);
+            FolderToExcelReader.getInstance().read(Paths.get("C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new"));
+//            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, oldWorkbook);
 
         } catch (Exception e) {
             e.printStackTrace();
