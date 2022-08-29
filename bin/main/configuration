@@ -1,0 +1,44 @@
+#Store template of sheets
+templates:
+  #a template name can be a exact matching of sheet name or a pattern, all sheets start with forward slash
+  #Patterns are only resolved within the root directory specifying a pattern like C:/ will no be resolved.
+  #The same pattern logic used in ignoreFile is used in template matching.
+  #matchingHeaders: specify the important headers names to keep in the sheet
+  #matchingPolicy: specify what to do if columns from matchingHeaders are missing, also action to take for extra columns.
+  #firstRowAsHeader: specify if first Row should be considered as Header or not( by default first row is considered part of the data)
+  #deleteRows: specify the number of columns to delete, please consider the fact, that this is applied after matchingHeaders, so the deleted columns
+  #            will be deleted based on template, this is usually should be used only if no template is specified or if the matching policy allows extra columns.
+  #deleteRows: this is usually used to delete rows that are only noise in data, please consider the fact that empty rows can be deleted during reading the sheet,
+  #           so if it is considered a best practice to use this only on non empty rows, or disable deleting empty rows during reading
+  #keyColumns: this is used to specify which columns should be considered as key, complexKeys are supported by default.
+  workbookPattern1\sheetPattern: --concat match workbookName/SheetName against this pattern( how to use the most specific)
+    keepEmptyRows: --true or false
+    keepEmptyColumns: --true or false
+    deleteRows: [ 1,2,3 ]
+    deleteColumns: [ 5,10 ]
+    firstRowAsHeader: --true or false
+    matchingHeaders: [ column1,column2 ]
+    matchingPolicy: INNER_MATCH
+    keyColumns: [[2,6],[3,5]]
+  workbookPattern2\sheetPattern: --concat match workbookName/SheetName against this pattern( how to use the most specific)
+    keepEmptyRows: --true or false
+    keepEmptyColumns: --true or false
+    deleteRows: [ 1,2,3 ]
+    deleteColumns: [ 5,10 ]
+    firstRowAsHeader: --true or false
+    matchingHeaders: [ column1,column2 ]
+    matchingPolicy: INNER_MATCH
+    keyColumns: [ 2,6 ]
+  workbookPattern3\sheetPattern: --concat match workbookName/SheetName against this pattern(how to use the most specific)
+    keepEmptyRows: --true or false
+    keepEmptyColumns: --true or false
+    deleteRows: [ 1,2,3 ]
+    deleteColumns: [ 5,10 ]
+    firstRowAsHeader: --true or false
+    matchingHeaders: [ column1,column2 ]
+    matchingPolicy: INNER_MATCH
+    keyColumns:
+      -simpleKeyIndexes:[2,6]
+      -sortedKeyIndexes:[3,10]
+
+

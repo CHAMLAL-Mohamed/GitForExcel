@@ -20,16 +20,18 @@
 package com.twiza;
 
 
-import com.twiza.utils.FolderToExcelReader;
+import com.twiza.domain.EWorkbook;
+import com.twiza.utils.ExcelReader;
+import com.twiza.utils.ExcelWriter;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new.xlsx";
-    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\Max Wire List2.xlsx";
-    private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff2-NEW.xlsx";
+    private static String oldFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\old.xlsx";
+    private static String newFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new.xlsx";
+    private static String diffFilePath = "C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\diff.xlsx";
 
 
     //IDEA: redesign Reading functionality to be more versatile and provide more capabilities via configurations.
@@ -53,14 +55,21 @@ public class App {
              */
             List<String> patternToIgnore = new ArrayList<>();
             patternToIgnore.add("*\\Sheet*");
-//            EWorkbook oldWorkbook = ExcelReader.getInstance().read(Paths.get(oldFilePath), patternToIgnore, false);
-//            oldWorkbook.getSheets()
-//                       .values()
-//                       .stream()
-//                       .filter(sheet -> sheet.getName().equals("report(draft)"))
-//                       .forEach(eSheet -> eSheet.adoptFirstRowAsHeaders(true));
-//            ExcelToFolderWriter.getInstance().write(oldWorkbook);
-            FolderToExcelReader.getInstance().read(Paths.get("C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new"));
+            EWorkbook oldWorkbook = ExcelReader.getInstance().read(Paths.get(oldFilePath), patternToIgnore, false);
+            oldWorkbook.getSheets()
+                    .values()
+                    .forEach(eSheet -> eSheet.adoptFirstRowAsHeaders(true));
+            EWorkbook newWorkbook = ExcelReader.getInstance().read(Paths.get(newFilePath), patternToIgnore, false);
+            newWorkbook.getSheets()
+                    .values()
+                    .forEach(eSheet -> eSheet.adoptFirstRowAsHeaders(true));
+            EWorkbook diffWorkbook = newWorkbook.compare(oldWorkbook);
+            ExcelWriter.getInstance().writeToWorkbook(diffFilePath,diffWorkbook);
+
+
+
+//           ExcelToFolderWriter.getInstance().write(oldWorkbook);
+//            FolderToExcelReader.getInstance().read(Paths.get("C:\\Users\\mohamed.chamlal\\.gitforexcel\\TestFiles\\new"));
 //            ExcelWriter.getInstance().writeToWorkbook(diffFilePath, oldWorkbook);
 
         } catch (Exception e) {

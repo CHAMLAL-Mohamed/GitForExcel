@@ -188,6 +188,12 @@ public interface ESheet {
     ESheet deleteEmptyColumns();
 
     /**
+     * delete all columns where hears is blank or empty
+     * @return this {@link ESheet} with the implemented modifications.
+     */
+    ESheet deleteColumnsWithEmptyHeaders();
+
+    /**
      * adjust the current sheet to match the provided template headers, and the mode
      * In other words, eliminate extra columns, and add missing columns to match the template provided.
      *

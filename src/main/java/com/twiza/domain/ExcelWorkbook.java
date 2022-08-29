@@ -129,7 +129,8 @@ public class ExcelWorkbook implements EWorkbook {
     public String toString() {
         return sheets.values()
                      .stream()
-                     .map(sheet -> ("------\n" + sheet.getName() + "\n\n" + sheet.toString()))
+                .filter(Objects::nonNull)
+                     .map(sheet -> ("------\n" + sheet.getName() + "\n\n" + sheet))
                      .collect(Collectors.joining());
     }
 }

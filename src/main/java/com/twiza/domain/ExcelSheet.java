@@ -397,6 +397,19 @@ public class ExcelSheet implements ESheet {
         return this;
     }
 
+    @Override
+    public ESheet deleteColumnsWithEmptyHeaders() {
+        List<Integer> emptyHeadersPositions=new ArrayList<>();
+        for(int i=0;i<headers.size();i++){
+            if (headers.get(i).isBlank()){
+                emptyHeadersPositions.add(i);
+            }
+        }
+        int[] positions=emptyHeadersPositions.stream().mapToInt(Integer::intValue).toArray();
+        deleteColumns(positions);
+        return this;
+    }
+
     /**
      * Implemented on: 03/10/2020
      * adjust the current sheet to match the provided template headers, and the mode
@@ -827,8 +840,10 @@ public class ExcelSheet implements ESheet {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(headers.toString()).append("\n");
-        getUniqueData().values().forEach(row -> builder.append(row.toString()).append("\n"));
+        if (headers!=null){
+            builder.append(headers).append("\n");
+        }
+       rows.forEach(row -> builder.append(row.toString()).append("\n"));
         return builder.toString();
     }
 }
